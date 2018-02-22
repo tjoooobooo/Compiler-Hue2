@@ -1,10 +1,14 @@
 object Main {
+
   def main(args: Array[String]): Unit = {
-    var x = 5
-    var y = 42.0
+    var prog = ""
+    do {
+      println("Enter program, to stop hit Return")
+      prog = scala.io.StdIn.readLine()
+      if (prog != "") {
+        printf("Hallo\n")
+      }
+    } while (prog != "")
+  }
 
-    y = y + x
-
-    printf(y.toString)
-}
 }
