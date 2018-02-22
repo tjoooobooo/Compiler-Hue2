@@ -1,3 +1,5 @@
+import scala.util.matching.Regex
+
 object ProgLexical {
 
 
