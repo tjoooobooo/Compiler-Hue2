@@ -1,8 +1,10 @@
 import StaticTypes.StaticType
 
 object AST {
+  type Object = List[Code]
+  trait Code
 
-  sealed abstract class Exp {
+  sealed abstract class Exp extends Code{
     var staticType: Option[StaticType] = None // will be set by typifier
 }
 
