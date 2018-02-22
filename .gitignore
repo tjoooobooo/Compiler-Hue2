@@ -1,5 +1,7 @@
 *.class
 *.log
-
+/build.sbit
 dir_to_ignore/
 .idea
+target
+project
