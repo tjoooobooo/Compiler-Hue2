@@ -1,5 +1,5 @@
 import AST._
-import ExpScanner.{NumberToken, Token}
+import frontend.ExpScanner.{NumberToken, Token}
 
 import scala.util.parsing.combinator.JavaTokenParsers
 /* TOKENS IN SÄTZE (TRAVERSIEREN)*/
@@ -9,8 +9,9 @@ object Parser {
     var result: List[(Int, Code)] = List()
 
     for (i <- code.indices) {
-      println(code(i)._2)
-      if(code(i)._2.isInstanceOf[NumberToken]) Number(num <: code(i)._2)
+      var token = code(i)._2
+      println(token)
+      if(token.isInstanceOf[NumberToken]) (NumberToken)token
     }
     result
   }
