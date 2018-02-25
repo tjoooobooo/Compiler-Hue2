@@ -46,6 +46,7 @@ object ProgParsers extends TokenParsers {
 
 
   // parse boolean expressions -----------------------------------------------------------------------------------------
+  /*
 
   def boolExp: Parser[BoolExp] =
     (arithExp <~ CompOpToken("<"))  ~ arithExp ^^ { case e1 ~ e2 => Less(e1, e2) } |
@@ -55,23 +56,23 @@ object ProgParsers extends TokenParsers {
     (arithExp <~ CompOpToken(">=")) ~ arithExp ^^ { case e1 ~ e2 => GreaterEq(e1, e2) }
 
 
-
+*/
   // parse arithmetic expressions --------------------------------------------------------------------------------------
 
 
-  def arithExp: Parser[ArithExp] = chainl1(term, term, addOp)
+  def arithExp: Parser[Exp] = chainl1(term, term, addOp)
 
-  def addOp : Parser[(ArithExp, ArithExp) ⇒ ArithExp] =
-    AddOpToken("+") ^^^ {(x:ArithExp, y: ArithExp) => Add(x,y)} |
-    AddOpToken("-") ^^^ {(x:ArithExp, y: ArithExp) => Sub(x,y)}
+  def addOp : Parser[(Exp, Exp) ⇒ Exp] =
+    AddOpToken("+") ^^^ {(x:Exp, y: Exp) => Add(x,y)} |
+    AddOpToken("-") ^^^ {(x:Exp, y: Exp) => Sub(x,y)}
 
   def term = chainl1(factor, factor, multOp)
 
-  def multOp : Parser[(ArithExp, ArithExp) ⇒ ArithExp] =
-    MultOpToken("*") ^^^ {(x:ArithExp, y: ArithExp) => Mul(x,y)}  |
-    MultOpToken("/") ^^^ {(x:ArithExp, y: ArithExp) => Div(x,y)}
+  def multOp : Parser[(Exp, Exp) ⇒ Exp] =
+    MultOpToken("*") ^^^ {(x:Exp, y: Exp) => Mul(x,y)}  |
+    MultOpToken("/") ^^^ {(x:Exp, y: Exp) => Div(x,y)}
 
-  def factor: Parser[ArithExp] =
+  def factor: Parser[Exp] =
     number   |
     LeftPToken("(") ~> arithExp <~ RightPToken(")") |
     refExp
