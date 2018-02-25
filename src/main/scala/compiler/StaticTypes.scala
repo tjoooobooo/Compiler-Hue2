@@ -1,3 +1,5 @@
+package compiler
+
 object StaticTypes {
   sealed abstract class StaticType {
     def isCompatibleWith(other: StaticType): Boolean

@@ -1,4 +1,4 @@
-import AST._
+import compiler.AST._
 import frontend.ExpScanner.{NumberToken, Token}
 
 import scala.util.parsing.combinator.JavaTokenParsers

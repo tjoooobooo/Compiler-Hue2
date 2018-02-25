@@ -1,4 +1,4 @@
-import StaticTypes.StaticType
+import compiler.StaticTypes.StaticType
 
 object ProgSymbols {
   // all entities defined in a program (i.e. names with a compile time value) are symbols

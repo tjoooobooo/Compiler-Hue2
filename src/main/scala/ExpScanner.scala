@@ -1,3 +1,5 @@
+package frontend
+
 object ExpScanner {
   // Definition of Tokens
   sealed abstract class Token

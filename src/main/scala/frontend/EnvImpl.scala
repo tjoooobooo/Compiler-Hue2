@@ -1,4 +1,4 @@
-package slides_10.frontend
+package frontend
 
 import ProgSymbols.ProgSymbol
 

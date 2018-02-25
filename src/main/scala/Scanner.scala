@@ -1,4 +1,4 @@
-import AST._
+import compiler.AST._
 
 /* WANDELT CODE IN TOKENS UM*/
 object Scanner {
@@ -15,7 +15,7 @@ object Scanner {
   private val tokenPatS = List(numberS,letterS,identS, operatorS).reduceRight(_ + "|" + _)
   private val tokenPat = tokenPatS.r
 
-  import ExpScanner._
+  import frontend.ExpScanner._
 
   def apply(code: String): List[(Int, Token)] = {
     var result: List[(Int, Token)] = List()
