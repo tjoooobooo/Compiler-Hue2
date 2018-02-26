@@ -1,7 +1,7 @@
 package a_slides_10.backend
 
-import mini_puck_c.frontend.ProgSymbols._
-import mini_puck_c.frontend.StaticTypes._
+import slides_10.frontend.ProgSymbols
+import a_slides_10.frontend.StaticTypes
 
 /**
   * This object contains definitions, constants and functions that are related to the runtime organisation of the
@@ -17,7 +17,7 @@ object RuntimeOrganisation {
     */
   case class RTLocInfo (nesting: Int, offset: Int)
 
-
+/*
   /**
     * Number of memory cells (addressable units) a pointer needs.
     */
@@ -105,5 +105,5 @@ object RuntimeOrganisation {
     })
 
   }
-
+*/
 }

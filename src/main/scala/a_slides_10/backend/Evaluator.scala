@@ -1,5 +1,5 @@
 package slides_10.backend
-
+import a_slides_10.frontend.AST._
 class Evaluator {
 
   private type Value = Int
@@ -11,7 +11,7 @@ class Evaluator {
 
   private def applyOp(op: (Value, Value) => Value, v1: Value, v2: Value) : Value = op(v1, v2)
 
-  private def eval(e: ArithExp) : Value = e match {
+  private def eval(e: Exp) : Value = e match {
     case Number(v)=> v
     case Ref(x)    =>
       val addr = eval(x)
@@ -33,7 +33,8 @@ class Evaluator {
 
   private def eval(le: RefExp): store.Address = le match {
     case VarRef(varSymb) =>
-      env.lookup(varSymb.name)
+      env.lookup(varSymb)   //.name
+
   }
 
   private def exec(cmd: Cmd) : Unit = cmd match {
@@ -71,11 +72,12 @@ class Evaluator {
     case _ => throw new Exception("Undefined definition")
   }
 
+
   def exec(p: Prog): Unit = p match {
     case Prog(defs, cmds) =>
       env.enterScope()
-      defs.foreach(exec(_))
-      cmds.foreach(exec(_))
+      defs.foreach(exec)
+      //cmds.foreach(exec(_))
       env.leaveScope()
   }
 

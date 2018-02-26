@@ -2,7 +2,6 @@ package slides_10.frontend
 
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
-
 import a_slides_10.frontend.AST._
 
 /*
@@ -85,7 +84,7 @@ object ProgParsers extends TokenParsers {
         case scala.util.Success(Variable(_)) => true
         case scala.util.Failure(_) => false
       })
-       => VarRef(env.lookup(name).get.asInstanceOf[Variable]) // ident is a defined variable create AST-node using its definition
+       => VarRef2(env.lookup(name).get.asInstanceOf[Variable]) // ident is a defined variable create AST-node using its definition
     },
       name => s"undefined name '$name'" // ident is not a defined variable
     )
@@ -111,7 +110,7 @@ object ProgParsers extends TokenParsers {
   // parse definitions -------------------------------------------------------------------------------------------------
   def definition: Parser[Definition] =
     varDefHeader ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
-      case vari ~ e => VarDef(vari, e)
+      case vari ~ e => VarDef2(vari, e)
     }
 
   def varDefHeader: Parser[Variable] =
@@ -161,6 +160,9 @@ object ProgParsers extends TokenParsers {
   }
 
 }
+
+
+
 
 
 

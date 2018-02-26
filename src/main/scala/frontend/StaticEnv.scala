@@ -1,6 +1,5 @@
 package frontend
-
-import frontend.ProgSymbols.ProgSymbol
+import slides_10.frontend.ProgSymbols._
 
 import scala.util.Try
 

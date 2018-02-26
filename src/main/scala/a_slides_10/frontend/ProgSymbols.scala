@@ -1,7 +1,6 @@
 package slides_10.frontend
 import a_slides_10.frontend.StaticTypes
 import a_slides_10.frontend.StaticTypes.TypeInfo
-import frontend.ProgSymbols.ProgSymbol
 import a_slides_10.backend.RuntimeOrganisation._
 
 object ProgSymbols {

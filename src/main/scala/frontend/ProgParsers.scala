@@ -1,7 +1,7 @@
 package frontend
 
 import a_slides_10.frontend.AST._
-import compiler.AstTraversal._
+import slides_10.frontend.ProgSymbols
 
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
@@ -12,8 +12,7 @@ import scala.util.parsing.input.Reader
  */
 object ProgParsers extends TokenParsers {
 
-  import ProgSymbols._
-
+  import slides_10.frontend.ProgSymbols._
   // the static environment used to for identifier identification
   val env: StaticEnv = new EnvImpl
 
@@ -46,8 +45,7 @@ object ProgParsers extends TokenParsers {
     id_any   ^^ { case (x: Any) => x.asInstanceOf[IdentToken].chars }
 
 
-  // parse boolean expressions -----------------------------------------------------------------------------------------
-  /*
+  // parse boolean expressions ----------------------------------------------------------------------------------------
 
   def boolExp: Parser[BoolExp] =
     (arithExp <~ CompOpToken("<"))  ~ arithExp ^^ { case e1 ~ e2 => Less(e1, e2) } |
@@ -57,7 +55,7 @@ object ProgParsers extends TokenParsers {
     (arithExp <~ CompOpToken(">=")) ~ arithExp ^^ { case e1 ~ e2 => GreaterEq(e1, e2) }
 
 
-*/
+
   // parse arithmetic expressions --------------------------------------------------------------------------------------
 
 
@@ -77,7 +75,7 @@ object ProgParsers extends TokenParsers {
     number   |
     LeftPToken("(") ~> arithExp <~ RightPToken(")")
     // | RefExp
-/*
+
   def refExp: Parser[Ref] =
     lExp ^^ {le => Ref(le) }
 
@@ -88,23 +86,23 @@ object ProgParsers extends TokenParsers {
         case scala.util.Success(Variable(_)) => true
         case scala.util.Failure(_) => false
       })
-       => VarRef(env.lookup(name).get.asInstanceOf[Variable]) // ident is a defined variable create AST-node using its definition
+       => VarRef2(env.lookup(name).get.asInstanceOf[Variable]) // ident is a defined variable create AST-node using its definition
     },
       name => s"undefined name '$name'" // ident is not a defined variable
     )
-*/
+
 
 
   // parse programs ----------------------------------------------------------------------------------------------------
-  def prog: Parser[Any] =
-    progStart ~> body ^^ { case (defList, cmdList) => AnyRef(defList, cmdList) }
+  def prog: Parser[Prog] =
+    progStart ~> body ^^ { case (defList, cmdList) => Prog(defList, cmdList) }
 
   // enter scope when keyword PROGRAM appears
   def progStart: Parser[Any] =
     KwToken("PROGRAM") ^^ { x => env.enterScope(); x }
 
   // leave scope after parsing the body
-  def body: Parser[(List[Definition], List[Any])] =
+  def body: Parser[(List[Definition], List[Cmd])] =
     rep(definition) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END")) ^^ { case defs ~ cmds =>
       env.leaveScope
       (defs, cmds)
@@ -114,7 +112,7 @@ object ProgParsers extends TokenParsers {
   // parse definitions -------------------------------------------------------------------------------------------------
   def definition: Parser[Definition] =
     varDefHeader ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
-      case vari ~ e => VarDef(vari, e)
+      case vari ~ e => VarDef2(vari, e)
     }
 
   def varDefHeader: Parser[Variable] =
@@ -141,7 +139,7 @@ object ProgParsers extends TokenParsers {
       case name => symbol
     }
   }
-/*
+
   // parse commands ----------------------------------------------------------------------------------------------------
   def cmd: Parser[Cmd] =
     (KwToken("IF")~>boolExp<~KwToken("THEN")) ~ rep(cmd) ~ (KwToken("ELSE")~>rep(cmd)<~KwToken("FI")) ^^ { case e~cthen~cElse => If(e, cthen, cElse) } |
@@ -149,7 +147,7 @@ object ProgParsers extends TokenParsers {
     (KwToken("WHILE")~>boolExp<~KwToken("DO")) ~ rep(cmd) <~ KwToken("OD")   ^^ { case e ~ cmdList => While(e, cmdList) } |
     (KwToken("WRITE")~>LeftPToken("(")~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ { case e => Write(e) } |
     (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";")            ^^ { case ref~e => Assign(ref, e) }
-*/
+
 
   def parse(str: String)  = {
 
@@ -164,3 +162,10 @@ object ProgParsers extends TokenParsers {
   }
 
 }
+
+
+
+
+
+
+

@@ -103,19 +103,19 @@ class ProgLexical extends ProgTokens {
     private var tokenIndex = 0
 
     while (! matched.isDefined && tokenIndex < pats.length) {
-        matched = matchRegex(pats(tokenIndex))
-        if (!matched.isDefined) { actOffset = startOffset }
-        tokenIndex = tokenIndex+1
+      matched = matchRegex(pats(tokenIndex))
+      if (!matched.isDefined) { actOffset = startOffset }
+      tokenIndex = tokenIndex+1
     }
 
     // fix token that was found and its position (if some token was found), and the position at its end
     val (tok: Token, tok_end: Int, tokPos: Position) = matched match {
       case None =>
-          if (actOffset >= input.length)
-            (EOF, input.length, new ExpPosition(input, actOffset))
-          else (errorToken("unexpected end of input"), input.length)
+        if (actOffset >= input.length)
+          (EOF, input.length, new ExpPosition(input, actOffset))
+        else (errorToken("unexpected end of input"), input.length)
       case Some(matchedStr) =>
-          val pos = new ExpPosition(input, actOffset)
+        val pos = new ExpPosition(input, actOffset)
         matchedStr match {
           case NumberPat(num)   => (NumberToken(num), actOffset, pos)
           case AddOpPat(op)     => (AddOpToken(op), actOffset, pos)

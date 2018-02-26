@@ -1,10 +1,7 @@
 package frontend
-
-import ProgSymbols.ProgSymbol
-
 import scala.collection.mutable
 import scala.util.{Failure, Try}
-
+import slides_10.frontend.ProgSymbols._
 class EnvImpl extends StaticEnv {
 
   private trait Frame {

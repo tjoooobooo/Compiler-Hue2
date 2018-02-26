@@ -1,10 +1,11 @@
-object Main {
+import slides_10.frontend.ProgParsers
 
+object Main {
+import a_slides_10._
   def main(args: Array[String]): Unit = {
-    var prog = "3+3"
-    val s = Scanner.apply(prog)
-    println(s)
-    Parser.parse(s)
+    var prog = "PROGRAM BEGIN  END"
+   var parsed = ProgParsers.parse(prog)
+    println(parsed)
   }
 
 }
