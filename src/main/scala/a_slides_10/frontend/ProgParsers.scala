@@ -3,6 +3,8 @@ package slides_10.frontend
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
 
+import a_slides_10.frontend.AST._
+
 /*
  * A TokenParser using a Lexer.
  * See scala.util.parsing.combinator.syntactical.TokenParsers.
@@ -143,7 +145,7 @@ object ProgParsers extends TokenParsers {
     (KwToken("IF")~>boolExp<~KwToken("THEN")) ~ rep(cmd) <~KwToken("FI")     ^^ { case e~cthen => If(e, cthen, List()) } |
     (KwToken("WHILE")~>boolExp<~KwToken("DO")) ~ rep(cmd) <~ KwToken("OD")   ^^ { case e ~ cmdList => While(e, cmdList) } |
     (KwToken("WRITE")~>LeftPToken("(")~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ { case e => Write(e) } |
-    (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";")            ^^ { case ref~e => Assign(ref, e) }
+      (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";")            ^^ { case ref~e => Assign(ref, e) }
 
 
   def parse(str: String)  = {
@@ -159,3 +161,28 @@ object ProgParsers extends TokenParsers {
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

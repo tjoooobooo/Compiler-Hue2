@@ -1,4 +1,4 @@
-import compiler.AST._
+import a_slides_10.frontend.AST._
 
 /* WANDELT CODE IN TOKENS UM*/
 object Scanner {
