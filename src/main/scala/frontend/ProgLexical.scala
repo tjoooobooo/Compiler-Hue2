@@ -1,6 +1,4 @@
-package a_slides_10.frontend
-
-import slides_10.frontend.ProgTokens
+package frontend
 
 import scala.util.matching.Regex
 import scala.util.parsing.input.{Position, Reader}
@@ -17,7 +15,7 @@ class ProgLexical extends ProgTokens {
   private val multOpPatS  = """(\*|/)"""
   private val compOpPatS  = """(<=|>=|=|<|>)"""
   private val assignPatS  = """(:=)"""
-  private val keywordPatS = """(INT|PROGRAM|BEGIN|END|VAR|IF|THEN|ELSE|WHILE|DO|OD|WRITE)"""
+  private val keywordPatS = """(PROC|INT|PROGRAM|BEGIN|END|VAR|IF|THEN|ELSE|WHILE|DO|OD|WRITE)"""
 
   private val leftPPatS      = """(\()"""
   private val rightPPatS     = """(\))"""

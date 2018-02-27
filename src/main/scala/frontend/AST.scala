@@ -1,8 +1,7 @@
-package a_slides_10.frontend
+package frontend
 
-import a_slides_10.frontend.StaticTypes.TypeInfo
-import slides_10.frontend.ProgSymbols
-import slides_10.frontend.ProgSymbols._
+import frontend.StaticTypes.TypeInfo
+import ProgSymbols._
 
 import scala.util.parsing.input.Positional
 

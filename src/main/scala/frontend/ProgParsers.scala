@@ -1,9 +1,9 @@
-package slides_10.frontend
+package frontend
 
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
-import a_slides_10.frontend.AST._
-import a_slides_10.frontend.{EnvImpl, ProgLexical, StaticEnv}
+import frontend.AST._
+
 
 /*
  * A TokenParser using a Lexer.
@@ -84,7 +84,7 @@ object ProgParsers extends TokenParsers {
       case name if (
        env.lookup(name) match {
         case success => true
-        case failure => false
+        case failure => false //TODO unreachable
       })
        => VarRef2(env.lookup(name).asInstanceOf[VarSymbol]) // ident is a defined variable create AST-node using its definition
     },
@@ -184,29 +184,30 @@ object ProgParsers extends TokenParsers {
 
   // parse first part (essentially the name) of a procedure definition
   // name of procedure belongs to outer scope
-  // parameters and local definitions belong to inner scopre
+  // parameters and local definitions belong to inner scope
+
   private def procDefHeader: Parser[ProcSymbol] =
     KwToken("PROC") ~> ident ^? (
       env.defineProcedure.andThen( procSymbol => {env.enterScope(); procSymbol} ), // define proc in outer scope, then enter proc-scope
-      { case name => s"$name is already defined" }
+      { name => s"$name is already defined" }
     )
 
   private def varDefHeader: Parser[VarSymbol] =
     KwToken("VAR") ~> ident ^? (
       env.defineVariable,
-      { case name => s"$name is already defined" }
+      { name => s"$name is already defined" }
     )
 
   private def refParamDefHeader: Parser[RefParamSymbol] =
     KwToken("REF") ~> ident ^? (
       env.defineRefParam,
-      { case name => s"$name is already defined" }
+      { name => s"$name is already defined" }
     )
 
   private def valParamDefHeader: Parser[ParamSymbol] =
     ident ^? (
       env.defineValParam,
-      { case name => s"$name is already defined" }
+      { name => s"$name is already defined" }
     )
 
 
@@ -227,6 +228,59 @@ object ProgParsers extends TokenParsers {
         case ref ~ e => Assign(ref, e)
       }
   }
+  // parse objects -----------------------------------------------------------------------------------------------------
+
+/*
+  // store imported symbol in static environment
+  private def imPort: Parser[(String, ProgSymbol)] =
+    KwToken("IMPORT") ~> (ident <~ DotToken(".")) ~ (ident <~ SemicolonToken(";")) ^? (
+      { case objName ~ defName if globalNameSpace.importSymbol.isDefinedAt(objName, defName) =>
+        val symb = globalNameSpace.importSymbol(objName, defName)
+        (objName, env.define(defName, symb))
+      },
+      { case objName ~ defName => s" '$objName . $defName'  can not be imported" }
+    )
+
+  private def imports: Parser[List[(String, ProgSymbol)]] =
+    rep(imPort)
+
+  private def exports: Parser[List[String]] =
+    rep(exPort)
+
+  private def exPort: Parser[String] =
+    KwToken("EXPORT") ~> ident <~ SemicolonToken(";")
+
+  private def obj: Parser[Obj] =
+    objStart ~ (imports ~ exports ~ body) ^? ({
+      case name ~ ((imPorts ~ exPorts) ~ Tuple2(defList, cmdList))
+        if exPorts.foldLeft(true)((acc:Boolean, n:String) => // check whether exported names are defined
+          acc && env.lookup.isDefinedAt(n)
+        )  => {
+        // put exported names form local environment to the global name-space
+        exPorts.foreach( exportedName =>
+          globalNameSpace.exportSymbol(name, exportedName, env.lookup(exportedName))
+        )
+        Obj(
+          name,
+          imPorts,
+          exPorts,
+          defList,
+          cmdList)
+      }
+
+    }, {
+      case name ~ ((imp ~ exp) ~ Tuple2(defList, cmdList)) => "some exported name is undefined"
+    })
+
+  private def objStart: Parser[String] =
+    KwToken("OBJECT") ~> ident ^^ { x => env.enterScope(); x }
+
+  private def body: Parser[(List[Definition], List[Cmd])] =
+    rep(definition) ~ (KwToken("INIT") ~> rep(cmd) <~ KwToken("END")) ^^ { case defs ~ cmds =>
+      (defs, cmds)
+    }
+
+*/
 
   def parse(str: String): Prog = {
 

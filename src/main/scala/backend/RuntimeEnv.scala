@@ -1,4 +1,4 @@
-package a_slides_10.backend
+package backend
 
 abstract class RuntimeEnv {
   import collection.mutable

@@ -1,6 +1,6 @@
-package a_slides_10.frontend
+package frontend
 
-import slides_10.frontend.ProgSymbols._
+import frontend.ProgSymbols._
 
 /**
   * Manage name resolution (definition and lookup) in a scoped environment.

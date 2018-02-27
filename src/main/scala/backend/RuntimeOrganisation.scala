@@ -1,7 +1,7 @@
-package a_slides_10.backend
+package backend
 
-import slides_10.frontend.ProgSymbols
-import a_slides_10.frontend.StaticTypes
+import frontend.ProgSymbols
+import frontend.StaticTypes
 
 /**
   * This object contains definitions, constants and functions that are related to the runtime organisation of the

@@ -1,4 +1,4 @@
-package slides_10.frontend
+package frontend
 
 import scala.util.parsing.combinator.token.Tokens
 

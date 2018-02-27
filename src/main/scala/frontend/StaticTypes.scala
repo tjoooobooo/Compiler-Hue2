@@ -1,4 +1,4 @@
-package a_slides_10.frontend
+package frontend
 
 /**
   * This object contains the definition of all internal representations of types of the source language.

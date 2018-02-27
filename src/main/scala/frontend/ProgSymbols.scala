@@ -1,7 +1,6 @@
-package slides_10.frontend
-import a_slides_10.frontend.StaticTypes
-import a_slides_10.frontend.StaticTypes.TypeInfo
-import a_slides_10.backend.RuntimeOrganisation._
+package frontend
+import frontend.StaticTypes.TypeInfo
+import backend.RuntimeOrganisation._
 
 object ProgSymbols {
 

@@ -1,5 +1,5 @@
-package a_slides_10.backend
-import a_slides_10.frontend.AST._
+package backend
+import frontend.AST._
 class Evaluator {
 
   private type Value = Int

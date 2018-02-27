@@ -1,5 +1,5 @@
-package a_slides_10.frontend
-import slides_10.frontend.ProgSymbols._
+package frontend
+import ProgSymbols._
 
 import scala.collection.mutable
 
@@ -84,6 +84,7 @@ class EnvImpl extends StaticEnv {
   val defineVariable: PartialFunction[String, VarSymbol] = {
     case name if ! actualFrame.isLocallyDefined(name) =>
       val symb = VarSymbol(name)
+      //symb.staticType = Option(IntTypeInfo)  TODO richtigen typ zuordnen?
       actualFrame.define(name, symb)
       symb
   }

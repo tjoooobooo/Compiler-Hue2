@@ -1,9 +1,9 @@
-import slides_10.frontend.ProgParsers
+import frontend.ProgParsers
 
 object Main {
-import a_slides_10._
+
   def main(args: Array[String]): Unit = {
-    var prog = "PROGRAM VAR Z : INT := 2; BEGIN WRITE(Z+3); END"
+    var prog = "PROGRAM VAR Z : INT := 2; PROC test(a: INT) BEGIN Z := 3; END BEGIN END"
    var parsed = ProgParsers.parse(prog)
     println(parsed)
   }
