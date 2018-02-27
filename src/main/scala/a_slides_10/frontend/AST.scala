@@ -1,7 +1,8 @@
 package a_slides_10.frontend
 
+import a_slides_10.frontend.StaticTypes.TypeInfo
 import slides_10.frontend.ProgSymbols
-import slides_10.frontend.ProgSymbols.{ProgSymbol, Variable}
+import slides_10.frontend.ProgSymbols.{ProcSymbol, ProgSymbol, Variable}
 
 import scala.util.parsing.input.Positional
 
@@ -23,6 +24,15 @@ object AST {
   case class Div(e1: Exp, e2: Exp) extends ArithExp
   case class Mul(e1: Exp, e2: Exp) extends ArithExp
 
+  // Expressions that denote storage locations  ------------------------------------------------------------------------
+  sealed abstract class LocExp extends Positional {
+    var staticType: Option[TypeInfo] = None // will be set by typifier
+  }
+  case class Arg(exp: Exp, var method: Option[ParamPassMethod] = None )
+  sealed abstract class ParamPassMethod
+  case object ByValue extends ParamPassMethod
+  case object ByRef extends ParamPassMethod
+
   sealed abstract class RefExp extends ArithExp
   case class Ref(l: RefExp) extends RefExp
 
@@ -30,12 +40,16 @@ object AST {
 
   case class Prog(defList: List[Definition], cmdList: List[Any])
 
-  sealed  abstract class Cmd
+  sealed abstract class TypeExp  extends Positional
+  case object IntTypeExp extends TypeExp
 
-  case class If(e: BoolExp, cthen: List[Cmd], cElse: List[Cmd]) extends Cmd
-  case class While(e: BoolExp, cmdList: List[Cmd]) extends Cmd
-  case class Write(e: Exp) extends Cmd
-  case class Assign(ref: RefExp, e: Exp) extends Cmd
+  // Commands  ---------------------------------------------------------------------------------------------------------
+  sealed abstract class Cmd extends Positional
+  case class Assign(var left: LocExp, right: Exp) extends Cmd
+  case class If(e: BoolExp, thenCmds: List[Cmd], elseCmds: List[Cmd]) extends Cmd
+  case class While(e: BoolExp, cmds:  List[Cmd]) extends Cmd
+  case class Write(e:Exp) extends Cmd
+  case class Call(symb: ProcSymbol, args: List[Arg]) extends Cmd
 
 
   sealed abstract class Definition extends Positional {

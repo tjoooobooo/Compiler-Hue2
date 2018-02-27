@@ -1,4 +1,4 @@
-package slides_10.frontend
+package a_slides_10.frontend
 
 import slides_10.frontend.ProgSymbols._
 

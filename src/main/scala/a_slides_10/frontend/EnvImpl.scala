@@ -1,6 +1,6 @@
-package slides_10.frontend
+package a_slides_10.frontend
 
-import ProgSymbols.ProgSymbol
+import slides_10.frontend.ProgSymbols.ProgSymbol
 
 import scala.collection.mutable
 import scala.util.{Failure, Try}

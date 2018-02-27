@@ -32,7 +32,7 @@ class ProgLexical extends ProgTokens {
   private val AssignPat    = assignPatS.r
   private val SemicolonPat = semicolonPatS.r
 
-  private val pats = List( KeywordPat, NumberPat, AddOpPat, MultOpPat, LeftPPat, RightPPat, AssignPat, SemicolonPat, IdPat )
+  private val pats = List(KeywordPat, NumberPat, AddOpPat, MultOpPat, LeftPPat, RightPPat, AssignPat, SemicolonPat, IdPat)
 
   private val whitespacePatS= """\s+"""
 

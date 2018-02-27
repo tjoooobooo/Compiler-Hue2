@@ -3,6 +3,7 @@ package slides_10.frontend
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
 import a_slides_10.frontend.AST._
+import a_slides_10.frontend.{EnvImpl, StaticEnv}
 
 /*
  * A TokenParser using a Lexer.
@@ -57,13 +58,13 @@ object ProgParsers extends TokenParsers {
 
   // parse arithmetic expressions --------------------------------------------------------------------------------------
 
-  def arithExp: Parser[ArithExp] = chainl1(term, term, addOp)
+  def arithExp: Parser[ArithExp] = chainl1(term, term, addOp())
 
-  def addOp : Parser[(ArithExp, ArithExp) ⇒ ArithExp] =
+  def addOp() : Parser[(ArithExp, ArithExp) ⇒ ArithExp] =
     AddOpToken("+") ^^^ {(x:ArithExp, y: ArithExp) => Add(x,y)} |
     AddOpToken("-") ^^^ {(x:ArithExp, y: ArithExp) => Sub(x,y)}
 
-  def term = chainl1(factor, factor, multOp)
+  def term: ProgParsers.Parser[ArithExp] = chainl1(factor, factor, multOp)
 
   def multOp : Parser[(ArithExp, ArithExp) ⇒ ArithExp] =
     MultOpToken("*") ^^^ {(x:ArithExp, y: ArithExp) => Mul(x,y)}  |
@@ -102,7 +103,7 @@ object ProgParsers extends TokenParsers {
   // leave scope after parsing the body
   def body: Parser[(List[Definition], List[Cmd])] =
     rep(definition) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END")) ^^ { case defs ~ cmds =>
-      env.leaveScope
+      env.leaveScope()
       (defs, cmds)
     }
 
@@ -116,7 +117,7 @@ object ProgParsers extends TokenParsers {
   def varDefHeader: Parser[Variable] =
     (KwToken("VAR") ~> ident) ^? (
       defineVariable,  // partial function that fails if the name is already defined in the current environment
-      { case name => s"$name is alredy defined" }
+      name => s"$name is alredy defined"
     )
 
 
@@ -139,15 +140,23 @@ object ProgParsers extends TokenParsers {
   }
 
   // parse commands ----------------------------------------------------------------------------------------------------
-  def cmd: Parser[Cmd] =
-    (KwToken("IF")~>boolExp<~KwToken("THEN")) ~ rep(cmd) ~ (KwToken("ELSE")~>rep(cmd)<~KwToken("FI")) ^^ { case e~cthen~cElse => If(e, cthen, cElse) } |
-    (KwToken("IF")~>boolExp<~KwToken("THEN")) ~ rep(cmd) <~KwToken("FI")     ^^ { case e~cthen => If(e, cthen, List()) } |
-    (KwToken("WHILE")~>boolExp<~KwToken("DO")) ~ rep(cmd) <~ KwToken("OD")   ^^ { case e ~ cmdList => While(e, cmdList) } |
-    (KwToken("WRITE")~>LeftPToken("(")~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ { case e => Write(e) } |
-      (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";")            ^^ { case ref~e => Assign(ref, e) }
+  def cmd: Parser[Cmd] = positioned {
+    (KwToken("IF") ~> boolExp <~ KwToken("THEN")) ~ rep(cmd) ~ (KwToken("ELSE") ~> rep(cmd) <~ KwToken("FI")) ^^ {
+      case e ~ cthen ~ cElse => If(e, cthen, cElse)
+    } |
+      (KwToken("IF") ~> boolExp <~ KwToken("THEN")) ~ rep(cmd) <~ KwToken("FI") ^^ {
+        case e ~ cthen => If(e, cthen, List())
+      } |
+      (KwToken("WHILE") ~> boolExp <~ KwToken("DO")) ~ rep(cmd) <~ KwToken("OD") ^^ {
+        case e ~ cmdList => While(e, cmdList)
+      } |
+      (KwToken("WRITE") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
+      (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
+        case ref ~ e => Assign(ref, e)
+      }
+  }
 
-
-  def parse(str: String)  = {
+  def parse(str: String): Prog = {
 
     // remove trailing whitespaces before passing the input to the scanner
     val lexer: Reader[lexical.Token] = new lexical.Scanner(str.trim.stripSuffix(lexical.whitespacePattern))
