@@ -1,4 +1,6 @@
-package slides_10.frontend
+package a_slides_10.frontend
+
+import slides_10.frontend.ProgTokens
 
 import scala.util.matching.Regex
 import scala.util.parsing.input.{Position, Reader}
@@ -15,11 +17,14 @@ class ProgLexical extends ProgTokens {
   private val multOpPatS  = """(\*|/)"""
   private val compOpPatS  = """(<=|>=|=|<|>)"""
   private val assignPatS  = """(:=)"""
-  private val keywordPatS = """(PROGRAM|BEGIN|END|VAR|IF|THEN|ELSE|WHILE|DO|OD|WRITE)"""
+  private val keywordPatS = """(INT|PROGRAM|BEGIN|END|VAR|IF|THEN|ELSE|WHILE|DO|OD|WRITE)"""
 
   private val leftPPatS      = """(\()"""
   private val rightPPatS     = """(\))"""
   private val semicolonPatS  = """(;)"""
+  private val colonPatS      = """(:)"""
+  private val commaPatS      = """(,)"""
+  private val dotPatS        = """(\.)"""
 
 
   private val NumberPat    = numberPatS.r
@@ -30,9 +35,13 @@ class ProgLexical extends ProgTokens {
   private val LeftPPat     = leftPPatS.r
   private val RightPPat    = rightPPatS.r
   private val AssignPat    = assignPatS.r
+  private val CompOpPat    = compOpPatS.r
   private val SemicolonPat = semicolonPatS.r
+  private val ColonPat     = colonPatS.r
+  private val CommaPat     = commaPatS.r
+  private val DotPat       = dotPatS.r
 
-  private val pats = List(KeywordPat, NumberPat, AddOpPat, MultOpPat, LeftPPat, RightPPat, AssignPat, SemicolonPat, IdPat)
+  private val pats = List(KeywordPat, NumberPat, AddOpPat, MultOpPat, LeftPPat, RightPPat, AssignPat, SemicolonPat, ColonPat, CommaPat, DotPat, CompOpPat, IdPat)
 
   private val whitespacePatS= """\s+"""
 
@@ -125,6 +134,10 @@ class ProgLexical extends ProgTokens {
           case KeywordPat(p)    => (KwToken(p), actOffset, pos)
           case IdPat(p)         => (IdentToken(p), actOffset, pos)
           case SemicolonPat(p)  => (SemicolonToken(p), actOffset, pos)
+          case ColonPat(p)      => (ColonToken(p), actOffset, pos)
+          case CommaPat(p)      => (CommaToken(p), actOffset, pos)
+          case DotPat(p)        => (DotToken(p), actOffset, pos)
+          case CompOpPat(p)     => (CompOpToken(p), actOffset, pos)
           case AssignPat(p)     => (AssignToken(p), actOffset, pos)
           case x                => (ErrorToken("unexpected "+x), actOffset, pos)
         }

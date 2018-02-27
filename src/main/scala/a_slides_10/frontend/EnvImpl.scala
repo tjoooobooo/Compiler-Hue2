@@ -1,15 +1,22 @@
 package a_slides_10.frontend
-
-import slides_10.frontend.ProgSymbols.ProgSymbol
+import slides_10.frontend.ProgSymbols._
 
 import scala.collection.mutable
-import scala.util.{Failure, Try}
 
+
+/**
+  * This class implements the trait StaticEnv, i.e. a static environment.
+  *
+  * The environment is managed a stack of frames. Each frame represents a scope.
+  * Frames are created and discarded with entering and leaving a scope.
+  */
 class EnvImpl extends StaticEnv {
 
   private trait Frame {
     def lookup(name: String) : ProgSymbol
     def define(name: String, value: ProgSymbol): Unit
+    def isLocallyDefined(name: String): Boolean
+    def isDefined(name: String): Boolean
   }
 
   // Bottom frame, represents "outside all scopes".
@@ -19,6 +26,10 @@ class EnvImpl extends StaticEnv {
       throw new Throwable(s"$name is not defined")
     override def define(name: String, value: ProgSymbol): Unit =
       throw new Throwable(s"$name can not be defined in outmost scope")
+    override def isLocallyDefined(name: String): Boolean =
+      false
+    override def isDefined(name: String): Boolean =
+      false
   }
 
   // represents a scope
@@ -39,6 +50,12 @@ class EnvImpl extends StaticEnv {
         case None => entries += (name -> symb)
       }
     }
+
+    // check whether a name is locally defined
+    def isLocallyDefined(name: String): Boolean = entries.isDefinedAt(name)
+
+    def isDefined(name: String): Boolean =
+      isLocallyDefined(name) || base.isDefined(name)
   }
 
   // represents the actual scope
@@ -57,16 +74,43 @@ class EnvImpl extends StaticEnv {
     }
   }
 
-  def define(name: String, symb: ProgSymbol): Try[Unit] = Try {
-    actualFrame.define(name, symb)
-  } recoverWith {
-    case e: Throwable => Failure(e)
+
+  val define: PartialFunction[(String, ProgSymbol), ProgSymbol] = {
+    case (name, symb) if ! actualFrame.isLocallyDefined(name) =>
+      actualFrame.define(name, symb)
+      symb
   }
 
-  def lookup(name: String) : Try[ProgSymbol] = Try {
-    actualFrame.lookup(name)
-  } recoverWith {
-        case e: Throwable => Failure(e)
-    }
+  val defineVariable: PartialFunction[String, VarSymbol] = {
+    case name if ! actualFrame.isLocallyDefined(name) =>
+      val symb = VarSymbol(name)
+      actualFrame.define(name, symb)
+      symb
+  }
+
+  val defineProcedure: PartialFunction[String, ProcSymbol] = {
+    case name if ! actualFrame.isLocallyDefined(name) =>
+      val symb = ProcSymbol(name)
+      actualFrame.define(name, symb)
+      symb
+  }
+
+  val defineValParam: PartialFunction[String, ValParamSymbol] = {
+    case name if ! actualFrame.isLocallyDefined(name) =>
+      val symb = ValParamSymbol(name)
+      actualFrame.define(name, symb)
+      symb
+  }
+
+  val defineRefParam: PartialFunction[String, RefParamSymbol] = {
+    case name if ! actualFrame.isLocallyDefined(name) =>
+      val symb = RefParamSymbol(name)
+      actualFrame.define(name, symb)
+      symb
+  }
+
+  val lookup: PartialFunction[String, ProgSymbol] = {
+    case name if actualFrame.isDefined(name) => actualFrame.lookup(name)
+  }
 
 }

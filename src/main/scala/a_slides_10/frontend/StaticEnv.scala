@@ -2,8 +2,11 @@ package a_slides_10.frontend
 
 import slides_10.frontend.ProgSymbols._
 
-import scala.util.Try
-
+/**
+  * Manage name resolution (definition and lookup) in a scoped environment.
+  *
+  * Definition and lookpup are defined as partial functions to allow for a smooth cooperation with parsers.
+ */
 trait StaticEnv {
 
   /**
@@ -17,21 +20,34 @@ trait StaticEnv {
     */
   def leaveScope(): Unit
 
-  /**
-    * Define a name within the current context
-    * @param name the name
-    * @param symb the symbol to be associated with the name
-    * @return     Success(_) if symbol may be definied in this context
-    *             Failure(_) if the symbol may not be defined in this context
-    *             (it may already be defined)
-    */
-  def define(name: String, symb: ProgSymbol): Try[Unit]
 
   /**
-    * Lookup a name within the current context
-    * @param name the name to be looked-up
-    * @return  Success(symbol) if the symbol that is associated with the name within the current context
-    *          Failure(_) if no symbol is associated  with the name within the current context
+    * Define a name ~> Symbol with a known symbol binding within the current context if it isn't already defined
     */
-  def lookup(name: String): Try[ProgSymbol]
+  val define: PartialFunction[(String, ProgSymbol), ProgSymbol]
+
+  /**
+    * Define a name ~> Symbol binding within the current context if it isn't already defined
+    */
+  val defineVariable: PartialFunction[String, VarSymbol]
+
+  /**
+    * Define a name ~> Symbol binding within the current context if it isn't already defined
+    */
+  val defineProcedure: PartialFunction[String, ProcSymbol]
+
+  /**
+    * Define a name ~> Symbol binding within the current context if it isn't already defined
+    */
+  val defineValParam: PartialFunction[String, ValParamSymbol]
+
+  /**
+    * Define a name ~> Symbol binding within the current context if it isn't already defined
+    */
+  val defineRefParam: PartialFunction[String, RefParamSymbol]
+
+  /**
+    * Lookup a name in the current environment if the name is defined
+    */
+  val lookup: PartialFunction[String, ProgSymbol]
 }

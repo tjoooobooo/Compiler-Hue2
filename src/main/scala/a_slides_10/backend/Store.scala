@@ -1,4 +1,4 @@
-package slides_10.backend
+package a_slides_10.backend
 
 class Store {
   import scala.collection.mutable.ArrayBuffer

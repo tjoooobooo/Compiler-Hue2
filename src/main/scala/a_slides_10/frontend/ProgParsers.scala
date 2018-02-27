@@ -3,7 +3,7 @@ package slides_10.frontend
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
 import a_slides_10.frontend.AST._
-import a_slides_10.frontend.{EnvImpl, StaticEnv}
+import a_slides_10.frontend.{EnvImpl, ProgLexical, StaticEnv}
 
 /*
  * A TokenParser using a Lexer.
@@ -75,22 +75,54 @@ object ProgParsers extends TokenParsers {
     LeftPToken("(") ~> arithExp <~ RightPToken(")") |
     refExp
 
-  def refExp: Parser[Ref] =
-    lExp ^^ {le => Ref(le) }
+  def refExp: Parser[LocAccess] = positioned {
+    lExp ^^ {le => LocAccess(le) }
+  }
 
   def lExp: Parser[RefExp] =
     ident ^?  ({  // check whether ident is a defined variable
       case name if (
        env.lookup(name) match {
-        case scala.util.Success(Variable(_)) => true
-        case scala.util.Failure(_) => false
+        case success => true
+        case failure => false
       })
-       => VarRef2(env.lookup(name).get.asInstanceOf[Variable]) // ident is a defined variable create AST-node using its definition
+       => VarRef2(env.lookup(name).asInstanceOf[VarSymbol]) // ident is a defined variable create AST-node using its definition
     },
       name => s"undefined name '$name'" // ident is not a defined variable
     )
 
+  // handling of defined names -----------------------------------------------------------------------------------------
+  // All name look-up is done using  env, the static environment. Global (imported) names are entered into env.
+  // Name look-up is performed in two stages:
+  // - first check whether the name is defined at all (there is a symbol with this name in the actual environment)
+  // - then whether it is of the expected kind
 
+  // look-up name in env, assert that it is defined
+  private def definedName: ProgParsers.Parser[VarRef2] =
+    ident ^? ({
+      case name if (
+        env.lookup(name) match {
+          case succes => true
+          case failure => false
+        })
+      => VarRef2(env.lookup(name).asInstanceOf[VarSymbol])
+    },
+        name => s"Name '$name' is undefined"
+    )
+
+  // assert that symbol associated with a name denotes a location
+  private def definedLoc: Parser[LocSymbol] =
+    definedName ^? (
+      { case symb: LocSymbol => symb },
+      name => s"Name '$name' is not a location"
+    )
+
+  // assert that symbol associated with a name denotes a procedure
+  private def definedProc: Parser[ProcSymbol] =
+    definedName ^? (
+      { case symb: ProcSymbol => symb },
+      name => s"Name '$name' is not a procedure"
+    )
 
   // parse programs ----------------------------------------------------------------------------------------------------
   def prog: Parser[Prog] =
@@ -106,38 +138,78 @@ object ProgParsers extends TokenParsers {
       env.leaveScope()
       (defs, cmds)
     }
+  // parse type expressions --------------------------------------------------------------------------------------------
+
+  private def typeExp: Parser[TypeExp] =
+    KwToken("INT")    ^^^ IntTypeExp
+
 
 
   // parse definitions -------------------------------------------------------------------------------------------------
-  def definition: Parser[Definition] =
-    varDefHeader ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
-      case vari ~ e => VarDef2(vari, e)
-    }
+  // when parsing a definition, the defined name is entered into the static environment, which creates a symbol for
+  // the name
 
-  def varDefHeader: Parser[Variable] =
-    (KwToken("VAR") ~> ident) ^? (
-      defineVariable,  // partial function that fails if the name is already defined in the current environment
-      name => s"$name is alredy defined"
+  private def varDef: Parser[VarDef] = positioned {
+    (varDefHeader <~ ColonToken(":")) ~ typeExp ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
+      case varsymb ~ t ~ e => VarDef(varsymb, t, e)
+    }
+  }
+
+  private def procDef: Parser[ProcDef] = positioned {
+    procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END"))  ^^ {
+      case procsymb ~  paramList ~ vardefs ~ cmds =>
+        env.leaveScope() // leave scope of procedure (scope was entered when parsing the procedure name)
+        ProcDef(procsymb, paramList, vardefs, cmds)
+    }
+  }
+
+  private def definition: Parser[Definition] = positioned {
+    varDef |
+      procDef
+  }
+
+  private def paramDef: Parser[ParamDef] =
+    (refParamDefHeader <~ ColonToken(":")) ~ typeExp ^^ {
+      case pSymb ~ te => RefParamDef(pSymb, te)
+    } |
+      (valParamDefHeader <~ ColonToken(":")) ~ typeExp ^^ {
+        case pSymb ~ te => ValueParamDef(pSymb, te)
+      }
+
+
+  // parse start of definitions ----------------------------------------------------------------------------------------
+  // the nane that is introduced with a definition has to be entered into the static environment.
+  // Parsing of definition headers is separated form parsing of the rest in oder to assure that the defined name
+  // is put into the static environment before parsing the rest of the definition.
+
+  // parse first part (essentially the name) of a procedure definition
+  // name of procedure belongs to outer scope
+  // parameters and local definitions belong to inner scopre
+  private def procDefHeader: Parser[ProcSymbol] =
+    KwToken("PROC") ~> ident ^? (
+      env.defineProcedure.andThen( procSymbol => {env.enterScope(); procSymbol} ), // define proc in outer scope, then enter proc-scope
+      { case name => s"$name is already defined" }
+    )
+
+  private def varDefHeader: Parser[VarSymbol] =
+    KwToken("VAR") ~> ident ^? (
+      env.defineVariable,
+      { case name => s"$name is already defined" }
+    )
+
+  private def refParamDefHeader: Parser[RefParamSymbol] =
+    KwToken("REF") ~> ident ^? (
+      env.defineRefParam,
+      { case name => s"$name is already defined" }
+    )
+
+  private def valParamDefHeader: Parser[ParamSymbol] =
+    ident ^? (
+      env.defineValParam,
+      { case name => s"$name is already defined" }
     )
 
 
-  // helper for variable definitions: Adapt "Try logic" of static environment to the "PartialFunction logic" of parser combinators,
-  // Partial function that is undefined on names that can not be defined in the current env.
-  // Attention, stateful object: isDefinedAt MUST be called immediately before calling apply.
-  object defineVariable extends PartialFunction[String, Variable] {
-    var symbol: Variable = _
-    override def isDefinedAt(x: String): Boolean = x match {
-      case name =>
-        symbol = Variable(name)
-        env.define(name, symbol) match {
-          case scala.util.Success(_) =>  true
-          case scala.util.Failure(_) => false
-        }
-    }
-    override def apply(x: String): Variable = x match {
-      case name => symbol
-    }
-  }
 
   // parse commands ----------------------------------------------------------------------------------------------------
   def cmd: Parser[Cmd] = positioned {
@@ -169,6 +241,7 @@ object ProgParsers extends TokenParsers {
   }
 
 }
+
 
 
 

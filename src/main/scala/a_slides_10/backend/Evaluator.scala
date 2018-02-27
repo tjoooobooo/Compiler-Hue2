@@ -1,4 +1,4 @@
-package slides_10.backend
+package a_slides_10.backend
 import a_slides_10.frontend.AST._
 class Evaluator {
 
@@ -13,7 +13,7 @@ class Evaluator {
 
   private def eval(e: Exp) : Value = e match {
     case Number(v)=> v
-    case Ref(x)    =>
+    case LocAccess(x)    =>
       val addr = eval(x)
       store(addr)
     case Add(l, r) => applyOp( (x:Value,y:Value) => x + y, eval(l), eval(r) )
@@ -63,7 +63,7 @@ class Evaluator {
 
 
   private def exec(definition: Definition) : Unit = definition match {
-    case VarDef(varsymb, e) => {
+    case VarDef(varsymb,t, e) => {
       val value = eval(e)
       val addr = store.allocateCell(value)
       env.define(varsymb.name, addr)
