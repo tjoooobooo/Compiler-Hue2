@@ -19,7 +19,7 @@ object ProgSymbols {
 
     // Variables denote runtime locations with a direct value
     case class VarSymbol(override val name: String) extends LocSymbol {
-      override def toString: String = name + "<VAR"+staticType + ", " + rtLocInfo + ">"
+      override def toString: String = name + "<VAR "+staticType + ", " + rtLocInfo + ">"
     }
 
     // Parameters denote runtime locations with a direct or an indirect value
