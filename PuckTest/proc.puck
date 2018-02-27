@@ -1,0 +1,9 @@
+PROGRAM
+VAR a : INT := 3;
+PROC test(b : INT)
+BEGIN
+    a := 3;
+END
+BEGIN
+    a := (3+1)*2;
+END
