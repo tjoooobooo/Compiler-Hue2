@@ -231,6 +231,7 @@ object ProgParsers extends TokenParsers {
   // parse objects -----------------------------------------------------------------------------------------------------
 
 /*
+TODO import objekte .. globalNameSpace?
   // store imported symbol in static environment
   private def imPort: Parser[(String, ProgSymbol)] =
     KwToken("IMPORT") ~> (ident <~ DotToken(".")) ~ (ident <~ SemicolonToken(";")) ^? (

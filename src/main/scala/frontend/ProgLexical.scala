@@ -45,12 +45,7 @@ class ProgLexical extends ProgTokens {
 
   private val whitespacePat = whitespacePatS.r
 
-  /**
-    * used in parser to remove trailing whitespace
-    * @return The pattern of whitespaces
-    */
   def whitespacePattern: String = whitespacePatS
-
 
   private class ExpPosition(s: String, offset: Int) extends Position {
     var lineNr = 0
