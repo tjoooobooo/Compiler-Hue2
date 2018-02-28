@@ -1,5 +1,5 @@
 
-import frontend.AST.{Number, VarDef, Write}
+import frontend.AST._
 import frontend.ProgParsers
 
 object Main {
@@ -9,5 +9,7 @@ object Main {
     var puckFile = scala.io.Source.fromFile(pfad + "proc_aufruf.puck").mkString
     var parsed = ProgParsers.parse(puckFile)
     println(parsed)
+    val exp: Exp = Add(Number(1),Number(1))
+    println(CodeGenerator.TestCode.genCode(exp))
   }
 }

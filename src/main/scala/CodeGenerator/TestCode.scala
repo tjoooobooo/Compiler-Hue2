@@ -15,7 +15,7 @@ object TestCode {
       AssignInstr(dest, Some(operand1), Some(op), Some(operand2))
     def apply(dest: MIntLoc, operand1: MIntLoc): AssignInstr =
       AssignInstr(dest, Some(operand1), None, None)
-    def apply(dest: MIntLoc, operand2: MIntImmediateValue): AssignInstr =
+    def apply(dest: Location, operand2: MIntImmediateValue): AssignInstr =
       AssignInstr(dest, None, None, Some(operand2))
   }
 
@@ -72,7 +72,7 @@ object TestCode {
 
   def genCode(exp: Exp) : List[Instr] = {
     // create temporary locations
-    var temps: List[Int] = (0 to tempsCount).toList
+    var temps: List[Int] = (0 to 2).toList
     // get next unused temporary
     def acquireTemp(): TempLoc = {
       val res = TempLoc(temps.head)
@@ -99,10 +99,10 @@ object TestCode {
       case Mul(l, r) => genBinOp(l, MultOp, r, target)
       case Div(l, r) => genBinOp(l, DivOp, r, target)
       case Number(v) =>
-        codeBuf += AssignInstr(target, Option(MIntImmediateValue(v)))
+        codeBuf += AssignInstr(target, MIntImmediateValue(v))
     }
     var t = acquireTemp()
-    genCodeExp(exp, t)
+    genCodeValExp(exp, t)
     codeBuf.toList
   }
 
