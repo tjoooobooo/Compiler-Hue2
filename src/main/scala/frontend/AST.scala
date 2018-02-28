@@ -32,10 +32,13 @@ object AST {
   sealed abstract class RefExp extends Positional{
     var staticType: Option[TypeInfo] = None // will be set by typifier
   }
+  case class DirectLoc(symb: LocSymbol) extends RefExp
+
+  case class StarConv(locExp: RefExp) extends RefExp
 
   //sealed abstract class Var extends Positional
 
-  case class Prog(defList: List[Definition], cmdList: List[Any])
+  case class Prog(defList: List[Definition], cmdList: List[Cmd])
 
   sealed abstract class TypeExp  extends Positional
   case object IntTypeExp extends TypeExp
@@ -58,14 +61,7 @@ object AST {
                      name: String
                    ) extends RefExp
   case class VarRef2(variable: VarSymbol) extends RefExp
-  /*case class VarDef2(
-                     override val symb: Variable,
-                     //t: TypeExp,  // the declared type
-                     e: Exp       // the initializing ArithExpression
-                   ) extends Definition {
-    type SymbType = ProgSymbols.Variable
-  }
-  abstract case class VarDef(vari: ProgSymbols.Variable, e: Exp) extends Definition*/
+
   case class VarDef(
                      override val symb: VarSymbol,
                      t: TypeExp,  // the declared type

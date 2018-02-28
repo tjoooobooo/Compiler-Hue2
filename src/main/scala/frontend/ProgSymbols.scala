@@ -1,6 +1,7 @@
 package frontend
 import frontend.StaticTypes.TypeInfo
 import backend.RuntimeOrganisation._
+import frontend.AST.RefExp
 
 object ProgSymbols {
 

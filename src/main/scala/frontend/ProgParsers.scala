@@ -3,7 +3,7 @@ package frontend
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
 import frontend.AST._
-
+import ProgSymbols.ProgSymbol
 
 /*
  * A TokenParser using a Lexer.
@@ -78,18 +78,12 @@ object ProgParsers extends TokenParsers {
   def refExp: Parser[LocAccess] = positioned {
     lExp ^^ {le => LocAccess(le) }
   }
-
+  // TODO Funktionen
   def lExp: Parser[RefExp] =
-    ident ^?  ({  // check whether ident is a defined variable
-      case name if (
-       env.lookup(name) match {
-        case success => true
-        case failure => false //TODO unreachable
-      })
-       => VarRef2(env.lookup(name).asInstanceOf[VarSymbol]) // ident is a defined variable create AST-node using its definition
-    },
-      name => s"undefined name '$name'" // ident is not a defined variable
-    )
+    definedLoc ^^ {
+      case symb@RefParamSymbol(_) => StarConv(DirectLoc(symb)) // Ref-Parameters need de-referencing
+      case symb => DirectLoc(symb)
+    }
 
   // handling of defined names -----------------------------------------------------------------------------------------
   // All name look-up is done using  env, the static environment. Global (imported) names are entered into env.
@@ -98,15 +92,9 @@ object ProgParsers extends TokenParsers {
   // - then whether it is of the expected kind
 
   // look-up name in env, assert that it is defined
-  private def definedName: ProgParsers.Parser[VarRef2] =
-    ident ^? ({
-      case name if (
-        env.lookup(name) match {
-          case succes => true
-          case failure => false
-        })
-      => VarRef2(env.lookup(name).asInstanceOf[VarSymbol])
-    },
+  private def definedName: ProgParsers.Parser[ProgSymbol] =
+    ident ^? (
+        env.lookup,
         name => s"Name '$name' is undefined"
     )
 
@@ -224,6 +212,11 @@ object ProgParsers extends TokenParsers {
         case e ~ cmdList => While(e, cmdList)
       } |
       (KwToken("WRITE") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
+      (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
+        case ref ~ e => Assign(ref, e)
+      }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
+        case ps ~ args => Call(ps, args.map(Arg(_, None))) // method of parameter passing not yet known
+      } |
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e => Assign(ref, e)
       }

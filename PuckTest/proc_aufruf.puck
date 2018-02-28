@@ -1,0 +1,12 @@
+PROGRAM
+VAR y : INT := 12;
+ PROC p(p: INT, REF q: INT)
+ VAR z: INT := 0;
+ BEGIN
+ q := y + z + p;
+ END
+BEGIN
+ y := y+1;
+ p(y+1, y);
+END
+
