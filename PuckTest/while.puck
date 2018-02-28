@@ -1,0 +1,9 @@
+PROGRAM
+VAR a : INT := 2;
+VAR b : INT := 0;
+
+BEGIN
+    WHILE a < b DO
+       a := a + b;
+       OD
+END
