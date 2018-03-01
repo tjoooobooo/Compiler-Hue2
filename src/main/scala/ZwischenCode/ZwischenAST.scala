@@ -1,5 +1,6 @@
 package ZwischenCode
 
+import CodeGenerator.Address
 import backend.RuntimeOrganisation.RTLocInfo
 
 object ZwischenAST {
@@ -36,7 +37,7 @@ object ZwischenAST {
   // Numeric value
   case class ImmediateValue(x: Int) extends LocOrValue
   // Temporary location (created by code generation)
-  case class TempLoc(nr: Int) extends Location
+  case class TempLoc(nr: Int) extends MIntLocOrValue
   // Operations on the (virtual) target machine
   sealed abstract class MOp
   case object AddOp extends MOp

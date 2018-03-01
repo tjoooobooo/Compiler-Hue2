@@ -21,8 +21,8 @@ object Main {
     val exp: Cmd = Assign(DirectLoc(VarSymbol("a")),Mul(Add(Number(5),Number(7)),Sub(Number(8),Number(2))))
     //val exp: Exp = Mul(Add(Number(1), Number(2)), Number(3))
     println(exp)
-    val instruk = ZwischenCode.ZwischenCode.genCode(exp)
-    instruk.foreach{println}
-    ZwischenCodePrinter.print(instruk)
+    //val instruk = ZwischenCode.ZwischenCode.genCode(exp)
+    //instruk.foreach{println}
+    //ZwischenCodePrinter.print(instruk)
   }
 }
