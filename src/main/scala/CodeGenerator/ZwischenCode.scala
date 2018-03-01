@@ -5,7 +5,7 @@ import frontend.AST._
 
 import scala.collection.mutable.ListBuffer
 
-object TestCode {
+object ZwischenCode {
 
 
   object AssignInstr {
@@ -72,7 +72,7 @@ object TestCode {
 
   def genCode(exp: Exp) : List[Instr] = {
     // create temporary locations
-    var temps: List[Int] = (0 to 2).toList
+    var temps: List[Int] = (0 to 5).toList
     // get next unused temporary
     def acquireTemp(): TempLoc = {
       val res = TempLoc(temps.head)

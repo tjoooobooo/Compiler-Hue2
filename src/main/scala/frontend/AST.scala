@@ -44,7 +44,7 @@ object AST {
   case object IntTypeExp extends TypeExp
 
   // Commands  ---------------------------------------------------------------------------------------------------------
-  sealed abstract class Cmd extends Positional
+  sealed abstract class Cmd extends Exp
   case class Assign(var left: RefExp, right: Exp) extends Cmd
   case class If(e: BoolExp, thenCmds: List[Cmd], elseCmds: List[Cmd]) extends Cmd
   case class While(e: BoolExp, cmds:  List[Cmd]) extends Cmd

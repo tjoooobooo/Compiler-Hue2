@@ -78,7 +78,6 @@ object ProgParsers extends TokenParsers {
   def refExp: Parser[LocAccess] = positioned {
     lExp ^^ {le => LocAccess(le) }
   }
-  // TODO Funktionen
   def lExp: Parser[RefExp] =
     definedLoc ^^ {
       case symb@RefParamSymbol(_) => StarConv(DirectLoc(symb)) // Ref-Parameters need de-referencing
@@ -117,6 +116,7 @@ object ProgParsers extends TokenParsers {
     progStart ~> body ^^ { case (defList, cmdList) => Prog(defList, cmdList) }
 
   // enter scope when keyword PROGRAM appears
+  // TODO PROGRAM
   def progStart: Parser[Any] =
     KwToken("PROGRAM") ^^ { x => env.enterScope(); x }
 
@@ -286,6 +286,7 @@ TODO import objekte .. globalNameSpace?
       case error@NoSuccess(_,_)  => println(error)
         throw new IllegalArgumentException("Parser Error")
     }
+
   }
 
 }
