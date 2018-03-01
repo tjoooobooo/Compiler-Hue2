@@ -20,7 +20,7 @@ object ProgSymbols {
 
     // Variables denote runtime locations with a direct value
     case class VarSymbol(override val name: String) extends LocSymbol {
-      override def toString: String = name + "<VAR "+staticType + ", " + rtLocInfo + ">"
+      //override def toString: String = name + "<VAR "+staticType + ", " + rtLocInfo + ">"
     }
 
     // Parameters denote runtime locations with a direct or an indirect value
@@ -28,19 +28,19 @@ object ProgSymbols {
 
     // Value Parameters denote runtime locations with a direct value
     case class ValParamSymbol(override val name: String) extends ParamSymbol  {
-      override def toString: String = name + "<VALP "+staticType + ", " + rtLocInfo + ">"
+      //override def toString: String = name + "<VALP "+staticType + ", " + rtLocInfo + ">"
     }
 
     // Reference Parameters denote runtime locations with an indirect value
     case class RefParamSymbol(override val name: String) extends ParamSymbol  {
-      override def toString: String = name + "<REFP "+staticType + ", " + rtLocInfo + ">"
+      //override def toString: String = name + "<REFP "+staticType + ", " + rtLocInfo + ">"
     }
 
     //Procedures
     case class ProcSymbol(
                            override val name: String,
-                           var params:      Option[List[ParamSymbol]] = None,
-                           var locals:      Option[List[VarSymbol]] = None,
+                           //var params:      Option[List[ParamSymbol]] = None,
+                           //var locals:      Option[List[VarSymbol]] = None,
                          ) extends ProgSymbol
 
 }

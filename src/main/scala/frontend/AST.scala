@@ -29,7 +29,7 @@ object AST {
   case object ByValue extends ParamPassMethod
   case object ByRef extends ParamPassMethod
 
-  sealed abstract class RefExp extends Positional{
+  sealed abstract class RefExp extends Exp{
     var staticType: Option[TypeInfo] = None // will be set by typifier
   }
   case class DirectLoc(symb: LocSymbol) extends RefExp
@@ -57,6 +57,7 @@ object AST {
     type SymbType <: ProgSymbol
     val symb: SymbType
   }
+  // TODO hier stimmt was nicht VARREF
   case class VarRef(
                      name: String
                    ) extends RefExp
