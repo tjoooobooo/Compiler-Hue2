@@ -7,34 +7,25 @@ object TestPrinter {
     for (code <- parsedCode) {
       code match {
         case temp: AssignInstr =>
-          var reg = 0
-          var op1 = 0
-          var opV1 = ""
-          var vName = ""
-
-
           temp.dest match {
             case Variable(name, loc) =>
-              vName = name
+
               loc match {
                 case TempMIntLoc(nr) =>
-                  reg = nr
-                  s += "t" + reg + " := " + vName + " = "
+                  s += "t" + nr + " := " + name + " = "
               }
             case TempMIntLoc(nr) =>
-              reg = nr
-              s += "t" + reg + " := "
+              s += "t" + nr + " := "
           }
 
           temp.operand1 match {
             case Some(TempMIntLoc(nr)) =>
-              op1 = nr
-              s += "t" + op1
+
+              s += "t" + nr
             case Some(Variable(name, loc)) =>
               loc match {
                 case TempMIntLoc(nr) =>
-                  op1 = nr
-                  s += "t" + op1
+                  s += "t" + nr
               }
             case None =>
           }
@@ -49,13 +40,11 @@ object TestPrinter {
 
           temp.operand2 match {
             case Some(TempMIntLoc(nr)) =>
-              op1 = nr
-              s += "t" + op1 + "\n"
+              s += "t" + nr + "\n"
             case Some(Variable(name, loc)) =>
               loc match {
                 case TempMIntLoc(nr) =>
-                  op1 = nr
-                  s += "t" + op1 + "\n"
+                  s += "t" + nr + "\n"
               }
             case Some(MIntImmediateValue(d)) =>
               s += d + "\n"

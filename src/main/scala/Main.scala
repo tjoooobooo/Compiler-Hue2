@@ -21,7 +21,7 @@ object Main {
     val instruk = ZwischenCode.ZwischenCode.genCode(parsed)
     instruk.foreach{println}
     //ZwischenCodePrinter.print(instruk)
-    //TestPrinter.print(instruk)
+    TestPrinter.print(instruk)
   }
 
 }
