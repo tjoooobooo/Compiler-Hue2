@@ -1,5 +1,5 @@
 
-import ZwischenCode.ZwischenCodePrinter
+import ZwischenCode.{TestPrinter, ZwischenCodePrinter}
 import backend.Evaluator
 import frontend.AST._
 import frontend.ProgParsers
@@ -21,5 +21,7 @@ object Main {
     val instruk = ZwischenCode.ZwischenCode.genCode(parsed)
     instruk.foreach{println}
     //ZwischenCodePrinter.print(instruk)
+    TestPrinter.print(instruk)
   }
+
 }

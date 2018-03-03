@@ -75,6 +75,8 @@ object Parser {
     var code2 = code.replaceAllLiterally("STACK","$31").replaceAllLiterally("RETURN","$30").replaceAllLiterally("NULL","$0").replaceAll(commentPat,"")
 
     var tokens = tokenPat.findAllIn(code2)
+
+
     /*
     for (r <- tokens) {
       printf("(" + r + ") ")

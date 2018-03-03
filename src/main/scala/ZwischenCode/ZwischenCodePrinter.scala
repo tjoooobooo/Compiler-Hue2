@@ -3,7 +3,8 @@ import ZwischenAST._
 
 object ZwischenCodePrinter {
 
-  def print(parsedCode : List[Instr]) : Unit = {
+  def print(parsedCode : List[Instr]) : String = {
+    var s = ""
     for(code <- parsedCode) {
       code match {
         case temp: AssignInstr =>
@@ -12,12 +13,14 @@ object ZwischenCodePrinter {
           var assignLoc = 0
           var op1 = 0
           var op2 = 0
-
+          var v = ""
           temp.operand2 match {
             case Some(MIntImmediateValue(d)) => value= d
             case _ =>
           }
           temp.dest match {
+            case Variable(name,loc) =>
+              v = name
             case TempMIntLoc(nr) => assignLoc = nr
             case _ =>
           }
@@ -30,21 +33,25 @@ object ZwischenCodePrinter {
             case _ =>
           }
 
+
           temp.op match {
             case Some(AddOp) =>
-              println("t"+ assignLoc + " := "  + "t"+op1 + " + " + "t"+op2)
+              s += "t"+ assignLoc + " := "  + "t"+op1 + " + " + "t"+op2 + "\n"
             case Some(SubOp) =>
-              println("t"+ assignLoc + " := "  + "t"+op1 + " - " + "t"+op2)
+              s += "t"+ assignLoc + " := "  + "t"+op1 + " - " + "t"+op2 + "\n"
             case Some(MultOp) =>
-              println("t"+ assignLoc + " := "  + "t"+op1 + " * " + "t"+op2)
+              s += "t"+ assignLoc + " := "  + "t"+op1 + " * " + "t"+op2
             case Some(DivOp) =>
-              println("t"+ assignLoc + " := "  + "t"+op1 + " / " + "t"+op2)
-            case _ => println("t"+assignLoc + " := " + value)
+              s += "t"+ assignLoc + " := "  + "t"+op1 + " / " + "t"+op2 + "\n"
+            case _ => s += "t"+assignLoc + " := " + value + "\n"
           }
+
 
         case _ =>
       }
     }
+    println(s)
+    s
   }
 
 }
