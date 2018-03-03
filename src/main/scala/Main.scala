@@ -10,7 +10,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     var pfad = "PuckTest//"
-    var puckFile = scala.io.Source.fromFile(pfad + "while.puck").mkString
+    var puckFile = scala.io.Source.fromFile(pfad + "test.puck").mkString
     var parsed = ProgParsers.parse(puckFile)
     println(parsed.defList)
     println(parsed.cmdList)
@@ -21,7 +21,7 @@ object Main {
     val instruk = ZwischenCode.ZwischenCode.genCode(parsed)
     instruk.foreach{println}
     //ZwischenCodePrinter.print(instruk)
-    TestPrinter.print(instruk)
+    //TestPrinter.print(instruk)
   }
 
 }
