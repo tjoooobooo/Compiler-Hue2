@@ -2,7 +2,7 @@ package backend
 
 import frontend.AST._
 object Evaluator {
-
+/*
   private type Value = Int
 
   private val store = new Store
@@ -79,5 +79,5 @@ object Evaluator {
       cmds.foreach(exec(_))
       env.leaveScope()
   }
-
+*/
 }

@@ -1,5 +1,7 @@
 PROGRAM
-VAR a : INT := 3;
+VAR a : INT := 3 + 3;
+VAR b : INT := 4;
 BEGIN
     a := (5+7)*(8-2);
+    a := b + a;
 END

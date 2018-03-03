@@ -6,9 +6,8 @@ import ProgSymbols._
 import scala.util.parsing.input.Positional
 
 object AST {
-  sealed abstract class Exp extends Positional
 
-  sealed abstract class BoolExp extends Exp
+  sealed abstract class BoolExp extends Positional
   case class Less(l: Exp, r: Exp) extends BoolExp
   case class Greater(l: Exp, r: Exp) extends BoolExp
   case class Equal(l: Exp, r: Exp) extends BoolExp
@@ -16,25 +15,27 @@ object AST {
   case class LessEq(l: Exp, r: Exp) extends BoolExp
   case class GreaterEq(l: Exp, r: Exp) extends BoolExp
 
-  sealed abstract class ArithExp extends Exp
-  case class Number(d: Int)        extends ArithExp
-  case class Add(e1: Exp, e2: Exp) extends ArithExp
-  case class Sub(e1: Exp, e2: Exp) extends ArithExp
-  case class Div(e1: Exp, e2: Exp) extends ArithExp
-  case class Mul(e1: Exp, e2: Exp) extends ArithExp
-  case class LocAccess(var locExp: RefExp)   extends ArithExp
+  sealed abstract class Exp extends Positional {
+    var staticType: Option[TypeInfo] = None // will be set by typifier
+  }
+  case class Number(d: Int)        extends Exp
+  case class Add(e1: Exp, e2: Exp) extends Exp
+  case class Sub(e1: Exp, e2: Exp) extends Exp
+  case class Div(e1: Exp, e2: Exp) extends Exp
+  case class Mul(e1: Exp, e2: Exp) extends Exp
+  case class LocAccess(var locExp: LocExp)   extends Exp
 
   case class Arg(exp: Exp, var method: Option[ParamPassMethod] = None )
   sealed abstract class ParamPassMethod
   case object ByValue extends ParamPassMethod
   case object ByRef extends ParamPassMethod
 
-  sealed abstract class RefExp extends Exp{
+  sealed abstract class LocExp extends Positional {
     var staticType: Option[TypeInfo] = None // will be set by typifier
   }
-  case class DirectLoc(symb: LocSymbol) extends RefExp
+  case class DirectLoc(symb: LocSymbol) extends LocExp
 
-  case class StarConv(locExp: RefExp) extends RefExp
+  case class StarConv(locExp: LocExp) extends LocExp
 
   //sealed abstract class Var extends Positional
 
@@ -45,7 +46,7 @@ object AST {
 
   // Commands  ---------------------------------------------------------------------------------------------------------
   sealed abstract class Cmd extends Exp
-  case class Assign(var left: RefExp, right: Exp) extends Cmd
+  case class Assign(var left: LocExp, right: Exp) extends Cmd
   case class If(e: BoolExp, thenCmds: List[Cmd], elseCmds: List[Cmd]) extends Cmd
   case class While(e: BoolExp, cmds:  List[Cmd]) extends Cmd
   case class Write(e:Exp) extends Cmd
@@ -57,12 +58,6 @@ object AST {
     type SymbType <: ProgSymbol
     val symb: SymbType
   }
-  // TODO hier stimmt was nicht VARREF
-  case class VarRef(
-                     name: String
-                   ) extends RefExp
-  case class VarRef2(variable: VarSymbol) extends RefExp
-
   case class VarDef(
                      override val symb: VarSymbol,
                      t: TypeExp,  // the declared type

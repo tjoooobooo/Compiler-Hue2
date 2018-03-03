@@ -18,15 +18,15 @@ object ZwischenCodePrinter {
             case _ =>
           }
           temp.dest match {
-            case TempLoc(nr) => assignLoc = nr
+            case TempMIntLoc(nr) => assignLoc = nr
             case _ =>
           }
           temp.operand1 match {
-            case Some(TempLoc(nr)) => op1 = nr
+            case Some(TempMIntLoc(nr)) => op1 = nr
             case _ =>
           }
           temp.operand2 match {
-            case Some(TempLoc(nr)) => op2 = nr
+            case Some(TempMIntLoc(nr)) => op2 = nr
             case _ =>
           }
 
