@@ -1,6 +1,6 @@
-package puck.assembler
+package compiler
 
-object AbstractSyntax {
+object AssemblerAST {
   type Object = List[AssemblerLine]
 
   trait AssemblerLine

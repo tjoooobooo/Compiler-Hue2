@@ -1,13 +1,13 @@
-package puck.assembler
+package compiler
 
-import AbstractSyntax._
+import compiler.AssemblerAST._
 
 object AbstractSyntaxPrinter {
   private def formatValue(value: Long): String = if (value == 0) "0" else if(value < 0) "-0x" + (-value).toHexString.toUpperCase else "0x"+value.toHexString.toUpperCase
 
   private def formatRegister(reg: Int): String = "$" + reg
 
-  def apply(obj: AbstractSyntax.Object): String = {
+  def apply(obj: AssemblerAST.Object): String = {
     obj.map {
       case Label(label) => label + ":"
 

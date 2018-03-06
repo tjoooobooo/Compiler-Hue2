@@ -1,7 +1,6 @@
 PROGRAM
-VAR a : INT := 3 + 3;
-VAR b : INT := 4;
+VAR a : INT := 3;
 BEGIN
-    a := (5+7)*(8-2);
-    a := b + a;
+    a := (1+2)*3;
+
 END

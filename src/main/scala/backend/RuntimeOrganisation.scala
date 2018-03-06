@@ -1,13 +1,14 @@
 package backend
 
-import frontend.ProgSymbols
-import frontend.StaticTypes
+import frontend.ProgSymbols.{ParamSymbol, ProcSymbol, VarSymbol}
+import frontend.StaticTypes.{IntTypeInfo, RefTypeInfo, TypeInfo}
 
 /**
   * This object contains definitions, constants and functions that are related to the runtime organisation of the
   * target machine.
   */
 object RuntimeOrganisation {
+  //TODO offset nesting
 
   /**
     * Info that is attached to compile time entities, that represent locations at runtime,
@@ -17,7 +18,7 @@ object RuntimeOrganisation {
     */
   case class RTLocInfo (nesting: Int, offset: Int)
 
-/*
+
   /**
     * Number of memory cells (addressable units) a pointer needs.
     */
@@ -105,5 +106,5 @@ object RuntimeOrganisation {
     })
 
   }
-*/
+
 }

@@ -1,7 +1,7 @@
 package ZwischenCode
 import ZwischenAST._
 
-object TestPrinter {
+object ZwischenPrinter {
   def print(parsedCode: List[Instr]): String = {
     var s = ""
     for (code <- parsedCode) {

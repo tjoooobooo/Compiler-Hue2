@@ -1,6 +1,6 @@
 package ZwischenCode
 
-import CodeGenerator.Address
+import CodeGenerator.{Address, PuckVmAddress}
 import backend.RuntimeOrganisation.RTLocInfo
 import frontend.AST.Exp
 
@@ -76,7 +76,6 @@ object ZwischenAST {
     def apply(dest: MIntLoc, operand2: MIntImmediateValue) : AssignInstr =
       AssignInstr(dest, None, None, Some(operand2))
   }
-
   // int values and locations
   // int value or a location with an int value
   sealed abstract class MIntLocOrValue // LocOrValue
@@ -89,6 +88,38 @@ object ZwischenAST {
   // Temporary MInt location (created by code generation)
   case class TempMIntLoc(nr: Int) extends MIntLoc // TempLoc#
 
+
   case class Variable(name: String, loc: MIntLoc) extends MIntLoc
+  case class Proc(name: String,noop: Unit) extends Instr
+
+  // STACK OPERATIONEN IM ZWISCHENCODE
+
+  // push MInt value on stack
+  case class PushMIntInstr(t: MIntLocOrValue) extends Instr
+  // push Address value on stack
+  case class PushMAddressInstr(a: MAddressLoc) extends Instr
+  // push code address on stack
+  case class PushCodeAddrInstr(returnLabel: String) extends Instr
+  // push frame pointer on stack
+  case object PushFPInstr extends Instr
+  // pop MInt value from stack
+  case object PopMIntInstr extends Instr
+  // pop address value from stack
+  case object PopMAddressInstr extends Instr
+  // pop code address from stack and store it in register RR
+  case object PopCodeAddrToRRInstr extends Instr
+  // pop frame pointer from stack to register FP
+  case object PopFPInstr extends Instr
+  // copy SP to FP
+  case object StoreSPasFPInstr extends Instr
+  // call instruction – essentially a junp to the label
+  case class CallInstr(callLabel: String) extends Instr
+  // return instruction – essentially a jump to the address in register RR
+  case object ReturnInstr extends Instr
+
+  //----------------------------------------------------
+  // Instructions that allocate static data areas
+  // allocate satic storage with size storage cells
+  case class AllocStaticInstr(size: Int) extends Instr
 
 }

@@ -4,17 +4,16 @@ import scala.collection.mutable.ListBuffer
 import ZwischenAST._
 import frontend.AST
 import frontend.AST._
+import frontend.StaticTypes.IntTypeInfo
 
 import scala.collection.mutable
-import scala.util.Try
 
-
-object ZwischenCode {
+object ZwischenGen {
 
 
   def genCode(prog: Prog): List[Instr] = {
     // create temporary locations TODO tempsCount
-    var temps: List[Int] = (0 to 5).toList
+    var temps: List[Int] = (1 to 5).toList
     val codeBuf: ListBuffer[Instr] = new ListBuffer()
     var globalhashMap : mutable.HashMap[String,MIntLoc] = new mutable.HashMap()
 
@@ -28,6 +27,12 @@ object ZwischenCode {
       temps = t.nr :: temps
     }
 
+    var offsetCounter = 0
+    def newOffSet: Int = {
+      offsetCounter += 1
+      offsetCounter-1
+    }
+
     //globale Variablen definieren
     for(definition <- prog.defList){
       definition match {
@@ -35,12 +40,12 @@ object ZwischenCode {
           var loc = acquireMIntTemp()
           globalhashMap.put(symb.name, loc)
           genCodeValExp(e,Variable(symb.name,loc))
-        case ProcDef(symb,fparams,locals,cmds) =>
-          // TODO proceduren
+        case _ => genCodeProc(definition.asInstanceOf[ProcDef])
 
       }
     }
-    prog.cmdList.foreach{genCode}
+    prog.cmdList.reverse.foreach{genCode}
+
 
     def genCodeIntLocExp(exp: AST.LocExp): MIntLoc= exp match {
       case DirectLoc(symb) =>
@@ -51,6 +56,49 @@ object ZwischenCode {
             acquireMIntTemp()
         }
       case StarConv(locExp) => acquireMIntTemp()
+    }
+    // TODO genCode für proceduren
+    def genCodeProc(procDef: ProcDef): Unit = {
+      //val procLabel = procSymbToLabel(procDef.symb)
+      codeBuf += LabeledInstr(procDef.symb + ":")
+      // store SP as new FP
+      codeBuf += StoreSPasFPInstr
+      // allocate non-static locals on stack
+      procDef.locals.foreach {
+        case VarDef(symb, _, _) =>
+          if (symb.rtLocInfo.get.nesting > 0 ) { // deal with stack variables only
+            symb.staticType match {
+              case Some(IntTypeInfo) =>
+                codeBuf += PushMIntInstr(MIntImmediateValue(0))
+              case _ => throw new Exception("internal error language supports only int variables")
+            }
+          }
+      }
+      // fill locals with init values
+      procDef.locals.foreach {
+        case VarDef(symb, _, initExp) =>
+          val varLoc = MIntFrameLoc(symb.rtLocInfo.get)
+          genCodeValExp(initExp, varLoc)
+        case _ => // ignore
+      }
+
+      // code for body
+      procDef.cmds.foreach( cmd => genCode(cmd) )
+      // release locals on stack
+      procDef.locals.reverse.foreach {
+        case VarDef(symb, _, _) =>
+          if (symb.rtLocInfo.get.nesting > 0 ) { // deal with stack variables only
+            symb.staticType match {
+              case Some(IntTypeInfo) =>
+                codeBuf += PopMIntInstr
+              case _ => throw new Exception("internal error: language supports only int variables")
+            }
+          }
+      }
+      // set RR from stack
+      codeBuf += PopCodeAddrToRRInstr
+      // return to caller
+      codeBuf += ReturnInstr
     }
 
 
@@ -76,6 +124,7 @@ object ZwischenCode {
           codeBuf += AssignInstr(target,v)
     }
 
+
     def genCode(cmd: Cmd): Unit = {
 
       //var t = acquireMIntTemp()
@@ -83,7 +132,6 @@ object ZwischenCode {
 
       // Create labels
       var labelCount = 0
-
       def newLabel: String = {
         labelCount = labelCount + 1
         "L_" + labelCount
@@ -159,8 +207,10 @@ object ZwischenCode {
           codeBuf += LabeledInstr(exitLabel)
 
       }
+
       genCodeCmd(cmd)
     }
+
     codeBuf.toList
   }
 }
