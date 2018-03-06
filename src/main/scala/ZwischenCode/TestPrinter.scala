@@ -52,6 +52,45 @@ object TestPrinter {
 
           }
 
+        case temp: IfInstr =>
+
+        temp.operand1 match {
+          case TempMIntLoc(nr) =>
+          s += "IF(" + "t" + nr
+        }
+
+        temp.op match {
+            case EqOp => s += " = "
+            case NeOp => s += " != "
+            case LsOp => s += " < "
+            case GtOp => s += " > "
+            case LeOp => s += " <= "
+            case GeOp => s += " >= "
+          }
+
+          temp.operand2 match  {
+            case TempMIntLoc(nr) =>
+              s += "t" + nr + ")"
+          }
+
+          temp.jumpTo match {
+            case  temp.jumpTo =>
+              s += " GOTO " + temp.jumpTo + "\n"
+          }
+
+        case temp: JumpInstr =>
+        temp match  {
+          case JumpInstr(label) =>
+            s += "GOTO " + label + "\n"
+        }
+
+        case temp: LabeledInstr  =>
+        temp.label match {
+          case temp.label =>
+            s += temp.label + ": NOOP\n"
+        }
+
+
             case _ =>
 
           }
