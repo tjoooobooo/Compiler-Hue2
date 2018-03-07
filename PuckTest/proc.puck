@@ -1,11 +1,12 @@
 PROGRAM
 VAR c: INT := 4;
-PROC test(b : INT)
+PROC test(b : INT, REF arg: INT)
 VAR a: INT := 3;
 VAR f: INT := 7;
 BEGIN
     a := f + b;
 END
 BEGIN
-    test(3);
+    test(3,c);
+
 END

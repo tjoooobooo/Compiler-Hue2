@@ -17,6 +17,8 @@ class ProgLexical extends ProgTokens {
   private val assignPatS  = """(:=)"""
   private val keywordPatS = """(PROC|INT|PROGRAM|BEGIN|END|VAR|IF|THEN|ELSE|WHILE|DO|OD|WRITE|REF)"""
 
+  //TODO wir brauchen noch Kommentare und Bitoperatoren
+
   private val leftPPatS      = """(\()"""
   private val rightPPatS     = """(\))"""
   private val semicolonPatS  = """(;)"""
