@@ -75,6 +75,7 @@ object AST {
   }
 
   sealed abstract class ParamDef extends Definition {
+    val symb: ParamSymbol
     type SymbType = ParamSymbol
   }
 

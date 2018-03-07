@@ -1,5 +1,5 @@
 package frontend
-import frontend.StaticTypes.TypeInfo
+import frontend.StaticTypes.{IntTypeInfo, TypeInfo}
 import backend.RuntimeOrganisation._
 
 object ProgSymbols {
@@ -13,7 +13,7 @@ object ProgSymbols {
 
     // entities defined in a program that represent a storage location which exists at runtime
     sealed abstract class LocSymbol extends ProgSymbol {
-      var staticType: Option[TypeInfo] = None  // will be set by typifier
+      var staticType: Option[TypeInfo] = Some(IntTypeInfo)  // will be set by typifier
       var rtLocInfo: Option[RTLocInfo] = None  // will be set by RuntimeLocator
     }
 

@@ -1,9 +1,14 @@
 package frontend
 
-import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
 import frontend.AST._
 import ProgSymbols.ProgSymbol
+import backend.RuntimeOrganisation
+import backend.RuntimeOrganisation.RTLocInfo
+import frontend.StaticTypes.IntTypeInfo
+
+import scala.collection.mutable.ListBuffer
+import scala.util.parsing.combinator.syntactical.TokenParsers
 
 /*
  * A TokenParser using a Lexer.
@@ -139,14 +144,29 @@ object ProgParsers extends TokenParsers {
 
   private def varDef: Parser[VarDef] = positioned {
     (varDefHeader <~ ColonToken(":")) ~ typeExp ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
-      case varsymb ~ t ~ e => VarDef(varsymb, t, e)
+      case varsymb ~ t ~ e =>
+        varsymb.staticType = Some(IntTypeInfo)
+        //TODO RTLOCINFO für globale
+        VarDef(varsymb, t, e)
     }
   }
 
   private def procDef: Parser[ProcDef] = positioned {
     procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END"))  ^^ {
       case procsymb ~  paramList ~ vardefs ~ cmds =>
-        env.leaveScope() // leave scope of procedure (scope was entered when parsing the procedure name)
+         // leave scope of procedure (scope was entered when parsing the procedure name)
+        //RuntimeOrganisation.frameLayout(1,procsymb)
+        // TODO RuntimeOrganisation.frameLayout
+        env.leaveScope()
+        // add parameter to procsymbol
+        var params = new ListBuffer[ParamSymbol]()
+        for(p <- paramList) params += p.symb
+        procsymb.params = Option(params.toList)
+        // add local variables to procsymb
+        var locals = new ListBuffer[VarSymbol]()
+        for(v <- vardefs) locals += v.symb
+        procsymb.locals = Option(locals.toList)
+        RuntimeOrganisation.frameLayout(1,procsymb)
         ProcDef(procsymb, paramList, vardefs, cmds)
     }
   }

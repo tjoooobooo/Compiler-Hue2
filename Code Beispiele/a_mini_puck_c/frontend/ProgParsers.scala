@@ -1,7 +1,6 @@
 package mini_puck_c.frontend
 
-import mini_puck_c.compiler.AST._
-import mini_puck_c.separate_compilation.GlobalNameSpace
+import frontend.ProgSymbols.{ParamSymbol, ProcSymbol}
 
 import scala.util.parsing.combinator.syntactical.TokenParsers
 import scala.util.parsing.input.Reader
@@ -153,11 +152,16 @@ class ProgParsers(globalNameSpace: GlobalNameSpace) extends TokenParsers {
     }
   }
 
+
   private def procDef: Parser[ProcDef] = positioned {
     procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END"))  ^^ {
       case procsymb ~  paramList ~ vardefs ~ cmds =>
+
         env.leaveScope() // leave scope of procedure (scope was entered when parsing the procedure name)
+        for(param <- paramList)
+          procsymb.params :+ param.symb
         ProcDef(procsymb, paramList, vardefs, cmds)
+
     }
   }
 
@@ -171,7 +175,8 @@ class ProgParsers(globalNameSpace: GlobalNameSpace) extends TokenParsers {
       case pSymb ~ te => RefParamDef(pSymb, te)
     } |
       (valParamDefHeader <~ ColonToken(":")) ~ typeExp ^^ {
-        case pSymb ~ te => ValueParamDef(pSymb, te)
+        case pSymb ~ te =>
+          ValueParamDef(pSymb, te)
     }
 
 

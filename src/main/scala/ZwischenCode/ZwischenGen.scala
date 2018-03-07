@@ -2,8 +2,10 @@ package ZwischenCode
 
 import scala.collection.mutable.ListBuffer
 import ZwischenAST._
+import backend.RuntimeOrganisation
 import frontend.AST
 import frontend.AST._
+import frontend.ProgSymbols.VarSymbol
 import frontend.StaticTypes.IntTypeInfo
 
 import scala.collection.mutable
@@ -32,18 +34,22 @@ object ZwischenGen {
       offsetCounter += 1
       offsetCounter-1
     }
-
+    var globals : List[VarSymbol] = List()
     //globale Variablen definieren
     for(definition <- prog.defList){
       definition match {
         case VarDef(symb,t,e) =>
           var loc = acquireMIntTemp()
           globalhashMap.put(symb.name, loc)
+          globals = globals :+ symb
           genCodeValExp(e,Variable(symb.name,loc))
-        case _ => genCodeProc(definition.asInstanceOf[ProcDef])
+        case _ =>
+          genCodeProc(definition.asInstanceOf[ProcDef])
 
       }
     }
+    println(globals)
+    RuntimeOrganisation.topLevelLayout(globals)
     prog.cmdList.reverse.foreach{genCode}
 
 
@@ -66,7 +72,8 @@ object ZwischenGen {
       // allocate non-static locals on stack
       procDef.locals.foreach {
         case VarDef(symb, _, _) =>
-          if (symb.rtLocInfo.get.nesting > 0 ) { // deal with stack variables only
+          symb.rtLocInfo.get.nesting
+          if (1 > 0 ) { // deal with stack variables only
             symb.staticType match {
               case Some(IntTypeInfo) =>
                 codeBuf += PushMIntInstr(MIntImmediateValue(0))
