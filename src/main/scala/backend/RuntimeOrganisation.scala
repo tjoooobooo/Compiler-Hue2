@@ -8,7 +8,6 @@ import frontend.StaticTypes.{IntTypeInfo, RefTypeInfo, TypeInfo}
   * target machine.
   */
 object RuntimeOrganisation {
-  //TODO offset nesting
 
   /**
     * Info that is attached to compile time entities, that represent locations at runtime,

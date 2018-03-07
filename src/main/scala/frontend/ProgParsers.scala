@@ -146,7 +146,6 @@ object ProgParsers extends TokenParsers {
     (varDefHeader <~ ColonToken(":")) ~ typeExp ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
       case varsymb ~ t ~ e =>
         varsymb.staticType = Some(IntTypeInfo)
-        //TODO RTLOCINFO für globale
         VarDef(varsymb, t, e)
     }
   }
@@ -155,8 +154,6 @@ object ProgParsers extends TokenParsers {
     procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END"))  ^^ {
       case procsymb ~  paramList ~ vardefs ~ cmds =>
          // leave scope of procedure (scope was entered when parsing the procedure name)
-        //RuntimeOrganisation.frameLayout(1,procsymb)
-        // TODO RuntimeOrganisation.frameLayout
         env.leaveScope()
         // add parameter to procsymbol
         var params = new ListBuffer[ParamSymbol]()
@@ -244,7 +241,6 @@ object ProgParsers extends TokenParsers {
   // parse objects -----------------------------------------------------------------------------------------------------
 
 /*
-TODO import objekte .. globalNameSpace?
   // store imported symbol in static environment
   private def imPort: Parser[(String, ProgSymbol)] =
     KwToken("IMPORT") ~> (ident <~ DotToken(".")) ~ (ident <~ SemicolonToken(";")) ^? (
