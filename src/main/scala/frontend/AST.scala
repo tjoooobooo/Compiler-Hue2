@@ -24,7 +24,7 @@ object AST {
   case class Div(e1: Exp, e2: Exp) extends Exp
   case class Mul(e1: Exp, e2: Exp) extends Exp
   case class LocAccess(var locExp: LocExp)   extends Exp
-
+  // TODO ARG IRGENDWAS
   case class Arg(exp: Exp, var method: Option[ParamPassMethod] = None )
   sealed abstract class ParamPassMethod
   case object ByValue extends ParamPassMethod

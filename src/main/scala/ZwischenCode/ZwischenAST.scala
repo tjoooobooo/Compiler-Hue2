@@ -30,7 +30,6 @@ object ZwischenAST {
   // label: Noop
   case class LabeledInstr(label: String) extends Instr
 
-  //--------------TODO ADDRESSEN--------------------------------------
   // address values and locations
   // Locations that contain an address
   sealed abstract class MAddressLoc

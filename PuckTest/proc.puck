@@ -1,10 +1,11 @@
 PROGRAM
-VAR a: INT := 3 + 3;
+VAR c: INT := 4;
 PROC test(b : INT)
 VAR a: INT := 3;
+VAR f: INT := 7;
 BEGIN
-    a := 3 + 2;
+    a := f + b;
 END
 BEGIN
-    a := (3+1)*2;
+    test(3);
 END

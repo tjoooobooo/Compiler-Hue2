@@ -3,6 +3,7 @@ package ZwischenCode
 import scala.collection.mutable.ListBuffer
 import ZwischenAST._
 import backend.RuntimeOrganisation
+import compiler.AssemblerAST.Outi
 import frontend.AST
 import frontend.AST._
 import frontend.ProgSymbols.VarSymbol
@@ -15,7 +16,7 @@ object ZwischenGen {
 
   def genCode(prog: Prog): List[Instr] = {
     // create temporary locations TODO tempsCount
-    var temps: List[Int] = (1 to 5).toList
+    var temps: List[Int] = (1 to 7).toList
     val codeBuf: ListBuffer[Instr] = new ListBuffer()
     var globalhashMap : mutable.HashMap[String,MIntLoc] = new mutable.HashMap()
 
@@ -48,8 +49,9 @@ object ZwischenGen {
 
       }
     }
-    println(globals)
+
     RuntimeOrganisation.topLevelLayout(globals)
+    println(globals)
     prog.cmdList.reverse.foreach{genCode}
 
 
@@ -63,17 +65,17 @@ object ZwischenGen {
         }
       case StarConv(locExp) => acquireMIntTemp()
     }
-    // TODO genCode für proceduren
+
     def genCodeProc(procDef: ProcDef): Unit = {
       //val procLabel = procSymbToLabel(procDef.symb)
-      codeBuf += LabeledInstr(procDef.symb + ":")
+      codeBuf += LabeledInstr(procDef.symb.name + ":")
       // store SP as new FP
       codeBuf += StoreSPasFPInstr
       // allocate non-static locals on stack
       procDef.locals.foreach {
         case VarDef(symb, _, _) =>
           symb.rtLocInfo.get.nesting
-          if (1 > 0 ) { // deal with stack variables only
+          if (symb.rtLocInfo.get.nesting > 0 ) { // deal with stack variables only
             symb.staticType match {
               case Some(IntTypeInfo) =>
                 codeBuf += PushMIntInstr(MIntImmediateValue(0))
@@ -212,7 +214,14 @@ object ZwischenGen {
           codeBuf += LabeledInstr(thenLabel)
           thenCmds.foreach { cmd => genCodeCmd(cmd) }
           codeBuf += LabeledInstr(exitLabel)
+        case Write(e) => //TODO WRITE CMD
+        case Call(symb,args) =>
+          println("CALL FOUND")
+          println(symb)
+          println(args)
+          codeBuf += PushFPInstr
 
+          JumpInstr(symb.name)
       }
 
       genCodeCmd(cmd)
