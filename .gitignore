@@ -1,6 +1,5 @@
 *.class
 *.log
-/build.sbt
 dir_to_ignore/
 .idea
 target
