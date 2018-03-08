@@ -59,11 +59,26 @@ object ProgParsers extends TokenParsers {
     (arithExp <~ CompOpToken("<=")) ~ arithExp ^^ { case e1 ~ e2 => LessEq(e1, e2) } |
     (arithExp <~ CompOpToken(">=")) ~ arithExp ^^ { case e1 ~ e2 => GreaterEq(e1, e2) }
 
+  // parse bitwise expressions --------------------------------------------------------------------------------------
 
+  def bitwiseExp: Parser[BitwiseExp] =
+      (arithExp <~ BitwiseOpToken("&"))  ~ arithExp ^^ { case e1 ~ e2 => And(e1, e2) } |
+      (arithExp <~ BitwiseOpToken("|"))  ~ arithExp ^^ { case e1 ~ e2 => Or(e1, e2) } |
+      (arithExp <~ BitwiseOpToken("^"))  ~ arithExp ^^ { case e1 ~ e2 => Xor(e1, e2) } |
+      (arithExp <~ BitwiseOpToken("<<")) ~ arithExp ^^ { case e1 ~ e2 => Sl(e1, e2) } |
+      (arithExp <~ BitwiseOpToken(">>")) ~ arithExp ^^ { case e1 ~ e2 => Sr(e1, e2) }
 
   // parse arithmetic expressions --------------------------------------------------------------------------------------
 
-  def arithExp: Parser[Exp] = chainl1(term, term, addOp())
+  def arithExp: Parser[Exp] = chainl1(term, term, addOp()|bitOp())
+
+  def bitOp() : Parser[(Exp, Exp) ⇒ Exp] =
+      BitwiseOpToken("&") ^^^ {(x:Exp, y: Exp) => And(x,y)} |
+      BitwiseOpToken("|") ^^^ {(x:Exp, y: Exp) => Or(x,y)} |
+      BitwiseOpToken("^") ^^^ {(x:Exp, y: Exp) => Xor(x,y)} |
+      BitwiseOpToken("<<") ^^^ {(x:Exp, y: Exp) => Sl(x,y)} |
+      BitwiseOpToken(">>") ^^^ {(x:Exp, y: Exp) => Sr(x,y)}
+
 
   def addOp() : Parser[(Exp, Exp) ⇒ Exp] =
     AddOpToken("+") ^^^ {(x:Exp, y: Exp) => Add(x,y)} |
@@ -72,8 +87,9 @@ object ProgParsers extends TokenParsers {
   def term: ProgParsers.Parser[Exp] = chainl1(factor, factor, multOp)
 
   def multOp : Parser[(Exp, Exp) ⇒ Exp] =
-    MultOpToken("*") ^^^ {(x:Exp, y: Exp) => Mul(x,y)}  |
-    MultOpToken("/") ^^^ {(x:Exp, y: Exp) => Div(x,y)}
+      MultOpToken("*") ^^^ {(x:Exp, y: Exp) => Mul(x,y)}  |
+      MultOpToken("/") ^^^ {(x:Exp, y: Exp) => Div(x,y)}  |
+      MultOpToken("%") ^^^ {(x:Exp, y: Exp) => Mod(x,y)}
 
   def factor: Parser[Exp] =
     number   |
@@ -232,7 +248,10 @@ object ProgParsers extends TokenParsers {
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e => Assign(ref, e)
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
-        case ps ~ args => Call(ps, args.map(Arg(_, None))) // TODO method of parameter passing not yet known
+        case ps ~ args =>
+          if(ps.params.head.lengthCompare(args.size) != 0)
+            throw new IllegalArgumentException("Falsche Anzahl von Parametern im Aufruf der Procedure " + ps.name + "()!")
+          Call(ps, args.map(Arg(_, None)))
       } |
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e => Assign(ref, e)

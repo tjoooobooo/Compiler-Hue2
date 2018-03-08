@@ -15,6 +15,14 @@ object AST {
   case class LessEq(l: Exp, r: Exp) extends BoolExp
   case class GreaterEq(l: Exp, r: Exp) extends BoolExp
 
+  /* BITWISE OPERATOREN*/
+  sealed abstract class BitwiseExp extends Exp
+  case class And(l: Exp, r: Exp) extends BitwiseExp
+  case class Or(l: Exp, r: Exp) extends BitwiseExp
+  case class Xor(l: Exp, r: Exp) extends BitwiseExp
+  case class Sl(l: Exp, r: Exp) extends BitwiseExp
+  case class Sr(l: Exp, r: Exp) extends BitwiseExp
+
   sealed abstract class Exp extends Positional {
     var staticType: Option[TypeInfo] = None // will be set by typifier
   }
@@ -23,6 +31,7 @@ object AST {
   case class Sub(e1: Exp, e2: Exp) extends Exp
   case class Div(e1: Exp, e2: Exp) extends Exp
   case class Mul(e1: Exp, e2: Exp) extends Exp
+  case class Mod(e1: Exp, e2: Exp) extends Exp
   case class LocAccess(var locExp: LocExp)   extends Exp
   // TODO ARG IRGENDWAS
   case class Arg(exp: Exp, var method: Option[ParamPassMethod] = None )
@@ -51,6 +60,7 @@ object AST {
   case class While(e: BoolExp, cmds:  List[Cmd]) extends Cmd
   case class Write(e:Exp) extends Cmd
   case class Call(symb: ProcSymbol, args: List[Arg]) extends Cmd
+  case class Comment(c: String) extends Cmd
 
   // Definitions  ------------------------------------------------------------------------------------------------------
   // all definitions introduce symbols

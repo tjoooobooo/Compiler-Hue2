@@ -12,12 +12,13 @@ class ProgLexical extends ProgTokens {
   private val numberPatS  = """(0|(?:[1-9][0-9]*))"""
   private val idPatS      = """(\w+)"""
   private val addOpPatS   = """(\+|\-)"""
-  private val multOpPatS  = """(\*|/)"""
+  private val multOpPatS  = """(\*|/|%)"""
   private val compOpPatS  = """(<=|>=|=|<|>)"""
+  private val bitwiseOpPatS = """(&|\||\^|<<|>>)""" // neu
   private val assignPatS  = """(:=)"""
   private val keywordPatS = """(PROC|INT|PROGRAM|BEGIN|END|VAR|IF|THEN|ELSE|WHILE|DO|OD|WRITE|REF)"""
-
-  //TODO wir brauchen noch Kommentare und Bitoperatoren
+  private val commentPatS = """(\/\/.*)"""
+  //TODO Kommentare /* */
 
   private val leftPPatS      = """(\()"""
   private val rightPPatS     = """(\))"""
@@ -36,12 +37,14 @@ class ProgLexical extends ProgTokens {
   private val RightPPat    = rightPPatS.r
   private val AssignPat    = assignPatS.r
   private val CompOpPat    = compOpPatS.r
+  private val BitwiseOpPat = bitwiseOpPatS.r
   private val SemicolonPat = semicolonPatS.r
   private val ColonPat     = colonPatS.r
   private val CommaPat     = commaPatS.r
   private val DotPat       = dotPatS.r
 
-  private val pats = List(KeywordPat, NumberPat, AddOpPat, MultOpPat, LeftPPat, RightPPat, AssignPat, SemicolonPat, ColonPat, CommaPat, DotPat, CompOpPat, IdPat)
+  private val pats = List(KeywordPat, NumberPat, AddOpPat, MultOpPat, LeftPPat, RightPPat, AssignPat,
+    SemicolonPat, ColonPat, CommaPat, DotPat, BitwiseOpPat, CompOpPat, IdPat )
 
   private val whitespacePatS= """\s+"""
 
@@ -105,10 +108,10 @@ class ProgLexical extends ProgTokens {
     private var matched: Option[String] = None
     private val startOffset = actOffset // fix actual position
     private var tokenIndex = 0
-
-    while (! matched.isDefined && tokenIndex < pats.length) {
+    // !matched.isDefined
+    while (matched.isEmpty && tokenIndex < pats.length) {
       matched = matchRegex(pats(tokenIndex))
-      if (!matched.isDefined) { actOffset = startOffset }
+      if (matched.isEmpty) { actOffset = startOffset }
       tokenIndex = tokenIndex+1
     }
 
@@ -133,6 +136,7 @@ class ProgLexical extends ProgTokens {
           case CommaPat(p)      => (CommaToken(p), actOffset, pos)
           case DotPat(p)        => (DotToken(p), actOffset, pos)
           case CompOpPat(p)     => (CompOpToken(p), actOffset, pos)
+          case BitwiseOpPat(p)  => (BitwiseOpToken(p), actOffset, pos)
           case AssignPat(p)     => (AssignToken(p), actOffset, pos)
           case x                => (ErrorToken("unexpected "+x), actOffset, pos)
         }

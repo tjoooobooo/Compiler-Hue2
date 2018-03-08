@@ -12,6 +12,13 @@ object ZwischenAST {
   case object SubOp extends MOp
   case object MultOp extends MOp
   case object DivOp extends MOp
+  case object ModOp extends MOp
+  //bitwise operators
+  case object AndOp extends MOp
+  case object OrOp extends MOp
+  case object XorOp extends MOp
+  case object SlOp extends MOp
+  case object SrOp extends MOp
   // instruction on the (virtual) target machine
   sealed abstract class Instr
   // Binary operation: x := y op z

@@ -11,8 +11,8 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     var pfad = "PuckTest//"
-    var puckFile = scala.io.Source.fromFile(pfad + "proc.puck").mkString
-    //TODO proc aufruf geht nicht richtiger anzahl von parametern amk und vielleicht was mit ref da
+    var puckFile = scala.io.Source.fromFile(pfad + "test.puck").mkString
+    //TODO proc aufruf was mit ref da
     var parsed = ProgParsers.parse(puckFile)
     parsed.defList.foreach{println}
     println(parsed.cmdList)

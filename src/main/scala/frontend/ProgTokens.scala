@@ -15,8 +15,10 @@ class ProgTokens extends Tokens {
   case class  AddOpToken(chars: String)     extends Token
   case class  MultOpToken(chars: String)    extends Token
   case class  CompOpToken(chars: String)    extends Token
+  case class  BitwiseOpToken(chars: String) extends Token // Neu
   case class  IdentToken(chars: String)     extends Token
   case class  StringToken(chars: String)    extends Token
   case class  KwToken(chars: String)        extends Token
+  case class  CommentToken(chars: String)   extends Token
 
 }

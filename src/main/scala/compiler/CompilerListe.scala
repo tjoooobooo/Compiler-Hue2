@@ -4,6 +4,7 @@ import ZwischenCode.ZwischenAST._
 import compiler.AssemblerAST._
 
 object CompilerListe {
+  //TODO ZwischenCode zu Assembler
 
   def compile(instructions: List[Instr]) : List[AssemblerLine] = {
     var result: List[AssemblerLine] = List()
@@ -22,7 +23,7 @@ object CompilerListe {
              else {
                processOp(loc.asInstanceOf[TempMIntLoc].nr, op,operand1,operand2)
                result = result :+ Setw(getValue(operand1), Right("var_"+name))
-               result = result :+ Stw(loc.asInstanceOf[TempMIntLoc].nr, getValue(operand1),0) // TODO offset
+               result = result :+ Stw(loc.asInstanceOf[TempMIntLoc].nr, getValue(operand1),0)
              }
            case TempMIntLoc(nr) =>
              if(operand1.isEmpty & op.isEmpty) result = result :+ getSetw(nr,operand2)

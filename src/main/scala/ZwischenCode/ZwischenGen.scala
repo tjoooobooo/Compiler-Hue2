@@ -16,7 +16,7 @@ object ZwischenGen {
 
   def genCode(prog: Prog): List[Instr] = {
     // create temporary locations TODO tempsCount
-    var temps: List[Int] = (1 to 7).toList
+    var temps: List[Int] = (1 to 31).toList
     val codeBuf: ListBuffer[Instr] = new ListBuffer()
     var globalhashMap : mutable.HashMap[String,MIntLoc] = new mutable.HashMap()
 
@@ -52,6 +52,7 @@ object ZwischenGen {
 
     RuntimeOrganisation.topLevelLayout(globals)
     println(globals)
+    println("------------------")
     prog.cmdList.reverse.foreach{genCode}
 
 
@@ -126,6 +127,12 @@ object ZwischenGen {
       case Sub(l, r) => genBinOp(l, SubOp, r, target)
       case Mul(l, r) => genBinOp(l, MultOp, r, target)
       case Div(l, r) => genBinOp(l, DivOp, r, target)
+      case Mod(l, r) => genBinOp(l, ModOp, r, target)
+      case And(l, r) => genBinOp(l, AndOp, r, target)
+      case Or(l, r) => genBinOp(l, OrOp, r, target)
+      case Xor(l, r) => genBinOp(l, XorOp, r, target)
+      case Sl(l, r) => genBinOp(l, SlOp, r, target)
+      case Sr(l, r) => genBinOp(l, SrOp, r, target)
       case Number(v) =>
         codeBuf += AssignInstr(target, MIntImmediateValue(v))
       case LocAccess(locExp) =>

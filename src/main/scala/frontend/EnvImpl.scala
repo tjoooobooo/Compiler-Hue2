@@ -84,7 +84,6 @@ class EnvImpl extends StaticEnv {
   val defineVariable: PartialFunction[String, VarSymbol] = {
     case name if ! actualFrame.isLocallyDefined(name) =>
       val symb = VarSymbol(name)
-      //symb.staticType = Option(IntTypeInfo)  TODO richtigen typ zuordnen?
       actualFrame.define(name, symb)
       symb
   }
