@@ -79,22 +79,23 @@ class ProgLexical extends ProgTokens {
     * @param actPos   the start position within input, stat scanning at this position
     */
   class Scanner(input: String, private val actPos: Int = 0) extends Reader[Token] {
+   var input2 = input.replaceAll(commentPatS,"")
 
     // the position at which we look for a token
     private var actOffset = actPos
 
     // moves actOffset over whitespaces
     private def skipWhiteSpace(): Int =
-      whitespacePat.findPrefixMatchOf(input.subSequence(actOffset, input.length())) match {
+      whitespacePat.findPrefixMatchOf(input2.subSequence(actOffset, input2.length())) match {
         case Some(m) => actOffset + m.end
         case None => actOffset
       }
 
     // Try to match r at actOffset with the input
     private def matchRegex(r: Regex): Option[String] = {
-      r.findPrefixMatchOf(input.subSequence(actOffset, input.length())) match {
+      r.findPrefixMatchOf(input2.subSequence(actOffset, input2.length())) match {
         case Some(matchedMatch) =>
-          val res = Some(input.subSequence(actOffset, actOffset + matchedMatch.end).toString)
+          val res = Some(input2.subSequence(actOffset, actOffset + matchedMatch.end).toString)
           actOffset = actOffset + matchedMatch.end
           res
         case None => None
@@ -118,11 +119,11 @@ class ProgLexical extends ProgTokens {
     // fix token that was found and its position (if some token was found), and the position at its end
     val (tok: Token, tok_end: Int, tokPos: Position) = matched match {
       case None =>
-        if (actOffset >= input.length)
-          (EOF, input.length, new ExpPosition(input, actOffset))
-        else (errorToken("unexpected end of input"), input.length)
+        if (actOffset >= input2.length)
+          (EOF, input2.length, new ExpPosition(input2, actOffset))
+        else (errorToken("unexpected end of input"), input2.length)
       case Some(matchedStr) =>
-        val pos = new ExpPosition(input, actOffset)
+        val pos = new ExpPosition(input2, actOffset)
         matchedStr match {
           case NumberPat(num)   => (NumberToken(num), actOffset, pos)
           case AddOpPat(op)     => (AddOpToken(op), actOffset, pos)
@@ -151,10 +152,10 @@ class ProgLexical extends ProgTokens {
 
     override def first: Token = tok
 
-    override def rest: Reader[Token] = new Scanner(input, actOffset)
+    override def rest: Reader[Token] = new Scanner(input2, actOffset)
 
     override def atEnd: Boolean = {
-      actPos >= input.length
+      actPos >= input2.length
     }
   }
 
