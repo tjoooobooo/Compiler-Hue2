@@ -5,5 +5,5 @@ BEGIN
     c := 5 + b;
 END
 BEGIN
-    test(3);
+    test(3,c);
 END

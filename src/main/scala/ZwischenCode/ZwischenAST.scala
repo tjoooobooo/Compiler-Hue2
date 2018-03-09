@@ -95,9 +95,6 @@ object ZwischenAST {
   case class TempMIntLoc(nr: Int) extends MIntLoc // TempLoc#
 
 
-  case class Variable(name: String, loc: MIntLoc) extends MIntLoc
-  case class Proc(name: String,noop: Unit) extends Instr
-
   // STACK OPERATIONEN IM ZWISCHENCODE
 
   // push MInt value on stack
@@ -127,5 +124,11 @@ object ZwischenAST {
   // Instructions that allocate static data areas
   // allocate satic storage with size storage cells
   case class AllocStaticInstr(size: Int) extends Instr
+
+  // Hinzugefügte Instruktionen
+
+  case class Variable(name: String, loc: MIntLoc) extends MIntLoc
+  case class Proc(name: String,noop: Unit) extends Instr
+  case class OutInteger(loc: MIntLocOrValue) extends Instr
 
 }

@@ -221,14 +221,18 @@ object ZwischenGen {
           codeBuf += LabeledInstr(thenLabel)
           thenCmds.foreach { cmd => genCodeCmd(cmd) }
           codeBuf += LabeledInstr(exitLabel)
-        case Write(e) => //TODO WRITE CMD
+        case Write(e) =>
+          var tmp = acquireMIntTemp()
+          genCodeValExp(e,tmp)
+          codeBuf += OutInteger(tmp)
         case Call(symb,args) =>
           println("CALL FOUND")
           println(symb)
           println(args)
+          println("-------------")
           codeBuf += PushFPInstr
-
-          JumpInstr(symb.name)
+          //TODO Parameter verarbeiten
+          codeBuf += JumpInstr(symb.name)
       }
 
       genCodeCmd(cmd)
