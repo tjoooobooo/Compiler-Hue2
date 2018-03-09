@@ -139,25 +139,25 @@ object ProgParsers extends TokenParsers {
   // enter scope when keyword PROGRAM appears
   // TODO PROGRAM am Anfang?
   def progStart: Parser[Any] =
-    KwToken("PROGRAM") ^^ { x => env.enterScope(); x }
+    KwToken("program") ^^ { x => env.enterScope(); x }
 
   // leave scope after parsing the body
   def body: Parser[(List[Definition], List[Cmd])] =
-    rep(definition) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END")) ^^ { case defs ~ cmds =>
+    rep(definition) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end")) ^^ { case defs ~ cmds =>
       env.leaveScope()
       (defs, cmds)
     }
   // parse type expressions --------------------------------------------------------------------------------------------
 
   private def typeExp: Parser[TypeExp] =
-    KwToken("INT")    ^^^ IntTypeExp
+    KwToken("int")    ^^^ IntTypeExp
 
 
 
   // parse definitions -------------------------------------------------------------------------------------------------
   // when parsing a definition, the defined name is entered into the static environment, which creates a symbol for
   // the name
-
+// TODO Variable definition ohne Wert var x, y: int;
   private def varDef: Parser[VarDef] = positioned {
     (varDefHeader <~ ColonToken(":")) ~ typeExp ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
       case varsymb ~ t ~ e =>
@@ -208,19 +208,19 @@ object ProgParsers extends TokenParsers {
   // parameters and local definitions belong to inner scope
 
   private def procDefHeader: Parser[ProcSymbol] =
-    KwToken("PROC") ~> ident ^? (
+    KwToken("proc") ~> ident ^? (
       env.defineProcedure.andThen( procSymbol => {env.enterScope(); procSymbol} ), // define proc in outer scope, then enter proc-scope
       { name => s"$name is already defined" }
     )
 
   private def varDefHeader: Parser[VarSymbol] =
-    KwToken("VAR") ~> ident ^? (
+    KwToken("var") ~> ident ^? (
       env.defineVariable,
       { name => s"$name is already defined" }
     )
 
   private def refParamDefHeader: Parser[RefParamSymbol] =
-    KwToken("REF") ~> ident ^? (
+    KwToken("ref") ~> ident ^? (
       env.defineRefParam,
       { name => s"$name is already defined" }
     )
@@ -235,17 +235,17 @@ object ProgParsers extends TokenParsers {
 
   // parse commands ----------------------------------------------------------------------------------------------------
   def cmd: Parser[Cmd] = positioned {
-    (KwToken("IF") ~> boolExp <~ KwToken("THEN")) ~ rep(cmd) ~ (KwToken("ELSE") ~> rep(cmd) <~ KwToken("FI")) ^^ {
+    (KwToken("if") ~> boolExp <~ KwToken("then")) ~ rep(cmd) ~ (KwToken("else") ~> rep(cmd) <~ KwToken("fi")) ^^ {
       case e ~ cthen ~ cElse => If(e, cthen, cElse)
     } |
-      (KwToken("IF") ~> boolExp <~ KwToken("THEN")) ~ rep(cmd) <~ KwToken("FI") ^^ {
+      (KwToken("if") ~> boolExp <~ KwToken("then")) ~ rep(cmd) <~ KwToken("fi") ^^ {
         case e ~ cthen => If(e, cthen, List())
       } |
-      (KwToken("WHILE") ~> boolExp <~ KwToken("DO")) ~ rep(cmd) <~ KwToken("OD") ^^ {
+      (KwToken("while") ~> boolExp <~ KwToken("do")) ~ rep(cmd) <~ KwToken("od") ^^ {
         case e ~ cmdList => While(e, cmdList)
       } |
-      (KwToken("WRITE") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
-      (KwToken("READ") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) | //TODO READ locAccess unsicher
+      (KwToken("write") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
+      (KwToken("read") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) | //TODO READ locAccess unsicher
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e => Assign(ref, e)
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
