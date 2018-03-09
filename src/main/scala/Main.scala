@@ -8,6 +8,7 @@ import frontend.ProgSymbols.VarSymbol
 
 
 object Main {
+  //TODO wir brauchen noch irgendeine Main
 
   def main(args: Array[String]): Unit = {
     var pfad = "PuckTest//"

@@ -166,8 +166,17 @@ object ProgParsers extends TokenParsers {
     }
   }
 
+  private def varsDef: Parser[Any] =  {
+    println("JAWDKJAWDJ")
+    rep(CommaToken(",") ~ ident) ~ ColonToken(":") ~ typeExp <~ SemicolonToken(";") ^^ {
+      case variables ~ types =>
+        println(variables)
+        println(types)
+    }
+  }
+
   private def procDef: Parser[ProcDef] = positioned {
-    procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("BEGIN") ~> rep(cmd) <~ KwToken("END"))  ^^ {
+    procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end"))  ^^ {
       case procsymb ~  paramList ~ vardefs ~ cmds =>
          // leave scope of procedure (scope was entered when parsing the procedure name)
         env.leaveScope()
@@ -245,7 +254,7 @@ object ProgParsers extends TokenParsers {
         case e ~ cmdList => While(e, cmdList)
       } |
       (KwToken("write") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
-      (KwToken("read") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) | //TODO READ locAccess unsicher
+      (KwToken("read") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) |
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e => Assign(ref, e)
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
@@ -253,9 +262,6 @@ object ProgParsers extends TokenParsers {
           if(ps.params.head.lengthCompare(args.size) != 0)
             throw new IllegalArgumentException("Falsche Anzahl von Parametern im Aufruf der Procedure " + ps.name + "()!")
           Call(ps, args.map(Arg(_, None)))
-      } |
-      (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
-        case ref ~ e => Assign(ref, e)
       }
   }
   // parse objects -----------------------------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ class ProgLexical extends ProgTokens {
   private val assignPatS  = """(:=)"""
   private val keywordPatS = """(proc|int|program|begin|end|var|if|then|else|while|do|od|write|read|ref)"""
   private val commentPatS = """(\/\/.*)"""
-  //TODO Kommentare /* */
+  private val commenBigPatS = """\/\*([\s\S]*?)\*\/"""
 
   private val leftPPatS      = """(\()"""
   private val rightPPatS     = """(\))"""
@@ -79,7 +79,7 @@ class ProgLexical extends ProgTokens {
     * @param actPos   the start position within input, stat scanning at this position
     */
   class Scanner(input: String, private val actPos: Int = 0) extends Reader[Token] {
-   var input2 = input.replaceAll(commentPatS,"")
+   var input2: String = input.replaceAll(commentPatS,"").replaceAll(commenBigPatS,"")
 
     // the position at which we look for a token
     private var actOffset = actPos

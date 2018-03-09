@@ -15,7 +15,7 @@ object ZwischenGen {
 
 
   def genCode(prog: Prog): List[Instr] = {
-    // create temporary locations TODO tempsCount
+    // create temporary locations
     var temps: List[Int] = (1 to 31).toList
     val codeBuf: ListBuffer[Instr] = new ListBuffer()
     var globalhashMap : mutable.HashMap[String,MIntLoc] = new mutable.HashMap()
@@ -241,7 +241,6 @@ object ZwischenGen {
 
       genCodeCmd(cmd)
     }
-
     codeBuf.toList
   }
 }

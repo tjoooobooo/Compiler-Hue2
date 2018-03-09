@@ -51,12 +51,14 @@ object AssemblerAST {
   case class Call(retR: Int, label: String) extends Instruction
   case class Callr(retR: Int, dstR: Int) extends Instruction
   case object Halt extends Instruction
+
   case class Ldb(srcR: Int, addressR: Int, offset: Long) extends Instruction
   case class Ldhw(srcR: Int, addressR: Int, offset: Long) extends Instruction
   case class Ldw(srcR: Int, addressR: Int, offset: Long) extends Instruction
   case class Stb(dstR: Int, addressR: Int, offset: Long) extends Instruction
   case class Sthw(dstR: Int, addressR: Int, offset: Long) extends Instruction
   case class Stw(dstR: Int, addressR: Int, offset: Long) extends Instruction
+
   case class Inc(dstR: Int) extends Instruction
   case class Inu(dstR: Int) extends Instruction
   case class Ini(dstR: Int) extends Instruction
@@ -65,6 +67,7 @@ object AssemblerAST {
   case class Outu(srcR: Int) extends Instruction
   case class Outi(srcR: Int) extends Instruction
   case class Outf(srcR: Int) extends Instruction
+
   case class Setb(dstR: Int, immediate: Long) extends Instruction
   case class Sethw(dstR: Int, immediate: Long) extends Instruction
   case class Setw(dstR: Int, value: Either[Long, String]) extends Instruction
