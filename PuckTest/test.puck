@@ -1,6 +1,5 @@
 PROGRAM
 VAR a : INT := 3;
 BEGIN
-    a := (1&2)*3;
-    WRITE(3+3);
+    READ(a);
 END

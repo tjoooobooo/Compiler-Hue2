@@ -59,7 +59,7 @@ object AST {
   case class If(e: BoolExp, thenCmds: List[Cmd], elseCmds: List[Cmd]) extends Cmd
   case class While(e: BoolExp, cmds:  List[Cmd]) extends Cmd
   case class Write(e:Exp) extends Cmd
-  //TODO fehlt read?
+  case class Read(e:Exp) extends Cmd
   case class Call(symb: ProcSymbol, args: List[Arg]) extends Cmd
   case class Comment(c: String) extends Cmd
 

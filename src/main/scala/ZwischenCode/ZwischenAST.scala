@@ -129,6 +129,6 @@ object ZwischenAST {
 
   case class Variable(name: String, loc: MIntLoc) extends MIntLoc
   case class Proc(name: String,noop: Unit) extends Instr
-  case class OutInteger(loc: MIntLocOrValue) extends Instr
-
+  case class PrintInteger(loc: MIntLocOrValue) extends Instr
+  case class ReadInteger(loc: MIntLocOrValue) extends Instr
 }

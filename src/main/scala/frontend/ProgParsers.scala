@@ -245,6 +245,7 @@ object ProgParsers extends TokenParsers {
         case e ~ cmdList => While(e, cmdList)
       } |
       (KwToken("WRITE") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
+      (KwToken("READ") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) | //TODO READ locAccess unsicher
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e => Assign(ref, e)
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {

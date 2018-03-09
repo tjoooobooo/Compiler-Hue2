@@ -224,7 +224,11 @@ object ZwischenGen {
         case Write(e) =>
           var tmp = acquireMIntTemp()
           genCodeValExp(e,tmp)
-          codeBuf += OutInteger(tmp)
+          codeBuf += PrintInteger(tmp)
+        case Read(e) =>
+          var tmp = acquireMIntTemp()
+          genCodeValExp(e,tmp)
+          codeBuf += ReadInteger(tmp)
         case Call(symb,args) =>
           println("CALL FOUND")
           println(symb)
