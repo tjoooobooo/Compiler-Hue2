@@ -1,9 +1,9 @@
-PROGRAM
-VAR c: INT := 4;
-PROC test(b : INT, REF arg: INT)
-BEGIN
+program
+var c: int := 4;
+proc test(b : int, ref arg: int)
+begin
     c := 5 + b;
-END
-BEGIN
+end
+begin
     test(3,c);
-END
+end
