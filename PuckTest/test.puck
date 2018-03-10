@@ -1,9 +1,11 @@
 program //kommentar
-var a: int :=3 ;
-proc test(b: int)
+var a: int;
+/*proc test(b: int)
 begin
+    a := 2;
     a := b;
-end
+end*/
 begin
-    read(a);
+    a := 10;
+    //read(a);
 end

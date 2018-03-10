@@ -39,6 +39,14 @@ object ZwischenGen {
     //globale Variablen definieren
     for(definition <- prog.defList){
       definition match {
+        case VarDef(symb,t,None) =>
+
+          println("bin hier")
+          var loc = acquireMIntTemp()
+          globalhashMap.put(symb.name, loc)
+          globals = globals :+ symb
+          defVar(Variable(symb.name,loc))
+
         case VarDef(symb,t,e) =>
           var loc = acquireMIntTemp()
           globalhashMap.put(symb.name, loc)
@@ -88,6 +96,7 @@ object ZwischenGen {
       procDef.locals.foreach {
         case VarDef(symb, _, initExp) =>
           val varLoc = MIntFrameLoc(symb.rtLocInfo.get)
+
           genCodeValExp(initExp, varLoc)
         case _ => // ignore
       }
@@ -111,18 +120,24 @@ object ZwischenGen {
       codeBuf += ReturnInstr
     }
 
+    def defVar(target: MIntLoc): Unit =
+      target match {
+        case Variable(name, loc) =>
+          codeBuf += VarDefInstr(target)
+      }
 
     def genBinOp(l: Exp, op: MOp, r: Exp, target: MIntLoc): Unit = {
       val t1 = acquireMIntTemp()
-      genCodeValExp(l, t1)
+      genCodeValExp(Option(l), t1)
       val t2 = acquireMIntTemp()
-      genCodeValExp(r, t2)
+      genCodeValExp(Option(r), t2)
       codeBuf += AssignInstr(target, t1, op, t2)
       releaseMIntTemp(t1)
       releaseMIntTemp(t2)
     }
 
-    def genCodeValExp(exp: Exp, target: MIntLoc): Unit = exp match {
+    def genCodeValExp(exp: Option[Exp], target: MIntLoc): Unit =
+        exp.get match {
       case Add(l, r) => genBinOp(l, AddOp, r, target)
       case Sub(l, r) => genBinOp(l, SubOp, r, target)
       case Mul(l, r) => genBinOp(l, MultOp, r, target)
@@ -161,9 +176,9 @@ object ZwischenGen {
       def genCodeBe(bExp: BoolExp, trueLabel: String): Unit = {
         def genCondJump(l: Exp, r: Exp, compOp: MRelOp): Unit = {
           val t1 = acquireMIntTemp()
-          genCodeValExp(l, t1)
+          genCodeValExp(Option(l), t1)
           val t2 = acquireMIntTemp()
-          genCodeValExp(r, t2)
+          genCodeValExp(Option(r), t2)
           codeBuf += IfInstr(t1, compOp, t2, trueLabel)
           releaseMIntTemp(t1)
           releaseMIntTemp(t2)
@@ -188,7 +203,7 @@ object ZwischenGen {
       def genCodeCmd(cmd: Cmd): Unit = cmd match {
         case Assign(left, right) =>
           val target = genCodeIntLocExp(left) // target location now contains the the destination loc
-          genCodeValExp(right, target) // generate code that puts value of right to target
+          genCodeValExp(Option(right), target) // generate code that puts value of right to target
 
         case While(cond, body) =>
           val startLabel = newLabel
@@ -223,11 +238,11 @@ object ZwischenGen {
           codeBuf += LabeledInstr(exitLabel)
         case Write(e) =>
           var tmp = acquireMIntTemp()
-          genCodeValExp(e,tmp)
+          genCodeValExp(Option(e),tmp)
           codeBuf += PrintInteger(tmp)
         case Read(e) =>
           var tmp = acquireMIntTemp()
-          genCodeValExp(e,tmp)
+          genCodeValExp(Option(e),tmp)
           codeBuf += ReadInteger(tmp)
         case Call(symb,args) =>
           println("CALL FOUND")

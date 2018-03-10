@@ -72,10 +72,11 @@ object AST {
   case class VarDef(
                      override val symb: VarSymbol,
                      t: TypeExp,  // the declared type
-                     e: Exp       // the initializing expression
+                     e: Option[Exp]      // the initializing expression
                    ) extends Definition {
     type SymbType = VarSymbol
   }
+
   case class ProcDef(
                       override val symb: ProcSymbol,
                       fparams: List[ParamDef],

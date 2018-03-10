@@ -159,21 +159,30 @@ object ProgParsers extends TokenParsers {
   // the name
 // TODO Variable definition ohne Wert var x, y: int;
   private def varDef: Parser[VarDef] = positioned {
+    //var a: Int ohne semikolon
+   (varDefHeader <~ ColonToken(":")) ~ typeExp <~ SemicolonToken(";") ^^ {
+      case varsymb ~ t =>
+        VarDef(varsymb, t, None)
+    } |
     (varDefHeader <~ ColonToken(":")) ~ typeExp ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
       case varsymb ~ t ~ e =>
         varsymb.staticType = Some(IntTypeInfo)
-        VarDef(varsymb, t, e)
+        VarDef(varsymb, t, Option(e))
     }
   }
 
-  private def varsDef: Parser[Any] =  {
-    println("JAWDKJAWDJ")
-    rep(CommaToken(",") ~ ident) ~ ColonToken(":") ~ typeExp <~ SemicolonToken(";") ^^ {
+  /*private def varsDef: Parser[VarDef2] =  {
+    (varDefHeader <~ ColonToken(":")) ~ typeExp ^^ {
+      case varsymb ~ t =>
+        varsymb.staticType = Some(IntTypeInfo)
+        VarDef2(varsymb,t)
+    }
+    /*rep(CommaToken(",") ~ ident) ~ ColonToken(":") ~ typeExp <~ SemicolonToken(";") ^^ {
       case variables ~ types =>
         println(variables)
         println(types)
-    }
-  }
+    }*/
+  }*/
 
   private def procDef: Parser[ProcDef] = positioned {
     procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end"))  ^^ {
@@ -256,7 +265,11 @@ object ProgParsers extends TokenParsers {
       (KwToken("write") ~> LeftPToken("(") ~> arithExp) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Write(e)) |
       (KwToken("read") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) |
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
-        case ref ~ e => Assign(ref, e)
+        case ref ~ e =>
+          ref.staticType
+          Assign(ref, e)
+
+
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
         case ps ~ args =>
           if(ps.params.head.lengthCompare(args.size) != 0)

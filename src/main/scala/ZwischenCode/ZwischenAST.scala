@@ -82,6 +82,11 @@ object ZwischenAST {
     def apply(dest: MIntLoc, operand2: MIntImmediateValue) : AssignInstr =
       AssignInstr(dest, None, None, Some(operand2))
   }
+
+  case class VarDefInstr (
+                         des: MIntLoc
+                         ) extends Instr
+
   // int values and locations
   // int value or a location with an int value
   sealed abstract class MIntLocOrValue // LocOrValue
