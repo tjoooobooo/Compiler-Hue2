@@ -59,15 +59,6 @@ object ProgParsers extends TokenParsers {
     (arithExp <~ CompOpToken("<=")) ~ arithExp ^^ { case e1 ~ e2 => LessEq(e1, e2) } |
     (arithExp <~ CompOpToken(">=")) ~ arithExp ^^ { case e1 ~ e2 => GreaterEq(e1, e2) }
 
-  // parse bitwise expressions --------------------------------------------------------------------------------------
-
-  def bitwiseExp: Parser[BitwiseExp] =
-      (arithExp <~ BitwiseOpToken("&"))  ~ arithExp ^^ { case e1 ~ e2 => And(e1, e2) } |
-      (arithExp <~ BitwiseOpToken("|"))  ~ arithExp ^^ { case e1 ~ e2 => Or(e1, e2) } |
-      (arithExp <~ BitwiseOpToken("^"))  ~ arithExp ^^ { case e1 ~ e2 => Xor(e1, e2) } |
-      (arithExp <~ BitwiseOpToken("<<")) ~ arithExp ^^ { case e1 ~ e2 => Sl(e1, e2) } |
-      (arithExp <~ BitwiseOpToken(">>")) ~ arithExp ^^ { case e1 ~ e2 => Sr(e1, e2) }
-
   // parse arithmetic expressions --------------------------------------------------------------------------------------
 
   def arithExp: Parser[Exp] = chainl1(term, term, addOp()|bitOp())

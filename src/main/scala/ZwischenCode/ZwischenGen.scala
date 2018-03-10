@@ -61,7 +61,7 @@ object ZwischenGen {
     RuntimeOrganisation.topLevelLayout(globals)
     println(globals)
     println("------------------")
-    prog.cmdList.reverse.foreach{genCode}
+    prog.cmdList.foreach{genCode}
 
 
     def genCodeIntLocExp(exp: AST.LocExp): MIntLoc= exp match {
