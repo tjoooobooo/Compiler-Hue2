@@ -134,9 +134,10 @@ object ProgParsers extends TokenParsers {
 
   // leave scope after parsing the body
   def body: Parser[(List[Definition], List[Cmd])] =
-    rep(definition) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end")) ^^ { case defs ~ cmds =>
+    opt(rep(varDef)) ~ rep(definition) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end")) ^^ { case vars ~ defs ~ cmds =>
       env.leaveScope()
-      (defs.flatten, cmds)
+      var definitions : List[Definition] = vars.get.flatten ++ defs
+      (definitions, cmds)
     }
   // parse type expressions --------------------------------------------------------------------------------------------
 
@@ -159,10 +160,9 @@ object ProgParsers extends TokenParsers {
           for (symb <- symbols.get) {
             var a = env.defineVariable(symb)
             a.staticType = Some(IntTypeInfo)
-            result += VarDef(a, t, None)
+            result += VarDef(a, t, e) // TODO variable zuweisung mit x,y := 3?
           }
         }
-        println("VARIABLES: " + result.toList)
         result.toList
     }
   }
@@ -199,16 +199,9 @@ object ProgParsers extends TokenParsers {
     }
   }
   //TODO VARDEF ALS LISTE
-  private def definition: Parser[List[Definition]] =  {
-    varDef ^^ {
-      variables =>
-        var result: ListBuffer[Definition] = new ListBuffer[Definition]()
-        for (variable <- variables) result += variable
-        result.toList
-    } |
-      procDef ^^ {
-        proc => var list = List[Definition](proc)
-      }
+  private def definition: Parser[Definition] =  {
+    // varDef |
+      procDef
   }
 
   private def paramDef: Parser[ParamDef] =
