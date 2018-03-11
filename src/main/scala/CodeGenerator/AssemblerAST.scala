@@ -1,4 +1,4 @@
-package compiler
+package CodeGenerator
 
 object AssemblerAST {
   type Object = List[AssemblerLine]

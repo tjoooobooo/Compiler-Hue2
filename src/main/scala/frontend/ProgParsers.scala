@@ -93,7 +93,11 @@ object ProgParsers extends TokenParsers {
   def lExp: Parser[LocExp] =
     definedLoc ^^ {
       case symb@RefParamSymbol(_) => StarConv(DirectLoc(symb)) // Ref-Parameters need de-referencing
-      case symb => DirectLoc(symb)
+      case symb =>
+       // TODO Variable deklariert?
+        //if(!symb.isDeclared) throw new IllegalArgumentException("Variable " + symb.name + " is undeclared!")
+        DirectLoc(symb)
+
     }
 
   // handling of defined names -----------------------------------------------------------------------------------------
@@ -134,7 +138,7 @@ object ProgParsers extends TokenParsers {
 
   // leave scope after parsing the body
   def body: Parser[(List[Definition], List[Cmd])] =
-    opt(rep(varDef)) ~ rep(definition) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end")) ^^ { case vars ~ defs ~ cmds =>
+    opt(rep(varDef)) ~ rep(definition) ~ (KwToken("init") ~> rep(cmd) <~ KwToken("end")) ^^ { case vars ~ defs ~ cmds =>
       env.leaveScope()
       var definitions : List[Definition] = vars.get.flatten ++ defs
       (definitions, cmds)
@@ -151,23 +155,21 @@ object ProgParsers extends TokenParsers {
   // the name
 
   private def varDef: Parser[List[VarDef]] = {
-    var result : ListBuffer[VarDef] = new ListBuffer[VarDef]()
-    varDefHeader ~ (opt(CommaToken(",") ~> rep(ident <~ opt(CommaToken(",")))) <~ ColonToken(":"))~
-      typeExp ~ opt(AssignToken(":=") ~> arithExp) <~ SemicolonToken(";") ^^ {
-      case varsymb ~ symbols ~ t ~ e =>
-        result += VarDef(varsymb, t, e)
-        if(symbols.isDefined) {
+    var result: ListBuffer[VarDef] = new ListBuffer[VarDef]()
+    varDefHeader ~ (opt(CommaToken(",") ~> rep(ident <~ opt(CommaToken(",")))) <~ ColonToken(":")) ~
+      typeExp <~ SemicolonToken(";") ^^ {
+      case varsymb ~ symbols ~ t  =>
+        result += VarDef(varsymb, t, None)
+        if (symbols.isDefined) {
           for (symb <- symbols.get) {
             var a = env.defineVariable(symb)
             a.staticType = Some(IntTypeInfo)
-            result += VarDef(a, t, e) // TODO variable zuweisung mit x,y := 3?
+            result += VarDef(a, t, None)
           }
         }
         result.toList
     }
   }
-
-
 
   private def varDefHeader: Parser[VarSymbol] =
     KwToken("var") ~> ident ^? (
@@ -198,7 +200,7 @@ object ProgParsers extends TokenParsers {
         ProcDef(procsymb, paramList, vardefs.flatten, cmds)
     }
   }
-  //TODO VARDEF ALS LISTE
+
   private def definition: Parser[Definition] =  {
     // varDef |
       procDef
@@ -227,8 +229,6 @@ object ProgParsers extends TokenParsers {
       env.defineProcedure.andThen( procSymbol => {env.enterScope(); procSymbol} ), // define proc in outer scope, then enter proc-scope
       { name => s"$name is already defined" }
     )
-
-
 
   private def refParamDefHeader: Parser[RefParamSymbol] =
     KwToken("ref") ~> ident ^? (
@@ -259,13 +259,19 @@ object ProgParsers extends TokenParsers {
       (KwToken("read") ~> LeftPToken("(") ~> locAccess) <~ RightPToken(")") <~ SemicolonToken(";") ^^ (e => Read(e)) |
       (lExp <~ AssignToken(":=")) ~ arithExp <~ SemicolonToken(";") ^^ {
         case ref ~ e =>
-          ref.staticType
           Assign(ref, e)
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
         case ps ~ args =>
           if(ps.params.head.lengthCompare(args.size) != 0)
             throw new IllegalArgumentException("Falsche Anzahl von Parametern im Aufruf der Procedure " + ps.name + "()!")
-          Call(ps, args.map(Arg(_, None)))
+          var res : ListBuffer[Arg] = new ListBuffer[Arg]()
+          for(arg <- args) arg match {
+              //TODO REF byRef nicht alle Variablen
+            case LocAccess(f) => res += Arg(arg,Some(ByRef))
+            case Number(f) => res += Arg(arg, Some(ByValue))
+          }
+          // args.map(Arg(_, None))
+          Call(ps, res.toList)
       }
   }
   // parse objects -----------------------------------------------------------------------------------------------------

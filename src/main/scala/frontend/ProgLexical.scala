@@ -16,7 +16,7 @@ class ProgLexical extends ProgTokens {
   private val compOpPatS  = """(<=|>=|=|<|>)"""
   private val bitwiseOpPatS = """(&|\||\^|<<|>>)""" // neu
   private val assignPatS  = """(:=)"""
-  private val keywordPatS = """(proc|int|program|begin|end|var|if|then|else|while|do|od|write|read|ref)"""
+  private val keywordPatS = """(proc|int|program|begin|end|var|if|fi|then|else|while|do|od|write|read|ref|init)"""
   private val commentPatS = """(\/\/.*)"""
   private val commenBigPatS = """\/\*([\s\S]*?)\*\/"""
 

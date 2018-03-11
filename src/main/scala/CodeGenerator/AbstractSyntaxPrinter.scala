@@ -1,6 +1,6 @@
-package compiler
+package CodeGenerator
 
-import compiler.AssemblerAST._
+import CodeGenerator.AssemblerAST._
 
 object AbstractSyntaxPrinter {
   private def formatValue(value: Long): String = if (value == 0) "0" else if(value < 0) "-0x" + (-value).toHexString.toUpperCase else "0x"+value.toHexString.toUpperCase

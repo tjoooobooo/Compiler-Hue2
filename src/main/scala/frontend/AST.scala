@@ -33,7 +33,7 @@ object AST {
   case class Mul(e1: Exp, e2: Exp) extends Exp
   case class Mod(e1: Exp, e2: Exp) extends Exp
   case class LocAccess(var locExp: LocExp)   extends Exp
-  // TODO ARG IRGENDWAS
+
   case class Arg(exp: Exp, var method: Option[ParamPassMethod] = None )
   sealed abstract class ParamPassMethod
   case object ByValue extends ParamPassMethod
@@ -46,7 +46,6 @@ object AST {
 
   case class StarConv(locExp: LocExp) extends LocExp
 
-  //sealed abstract class Var extends Positional
 
   case class Prog(defList: List[Definition], cmdList: List[Cmd])
 

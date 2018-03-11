@@ -1,7 +1,13 @@
 program //kommentar
-var a,b: int := 3;
+var a,b: int;
+proc t()
+var x,y : int;
 begin
-    a := 3;
-    a := 10;
-    read(a);
+ x := 2 + y;
+ x := 7 * 100;
+end
+init
+    a := 4;
+    b := 78;
+    a := b;
 end
