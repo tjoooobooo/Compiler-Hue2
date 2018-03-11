@@ -40,8 +40,6 @@ object ZwischenGen {
     for(definition <- prog.defList){
       definition match {
         case VarDef(symb,t,None) =>
-
-          println("bin hier")
           var loc = acquireMIntTemp()
           globalhashMap.put(symb.name, loc)
           globals = globals :+ symb

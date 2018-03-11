@@ -136,7 +136,7 @@ object ProgParsers extends TokenParsers {
   def body: Parser[(List[Definition], List[Cmd])] =
     rep(definition) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end")) ^^ { case defs ~ cmds =>
       env.leaveScope()
-      (defs, cmds)
+      (defs.flatten, cmds)
     }
   // parse type expressions --------------------------------------------------------------------------------------------
 
@@ -148,32 +148,32 @@ object ProgParsers extends TokenParsers {
   // parse definitions -------------------------------------------------------------------------------------------------
   // when parsing a definition, the defined name is entered into the static environment, which creates a symbol for
   // the name
-// TODO Variable definition ohne Wert var x, y: int;
-  private def varDef: Parser[VarDef] = positioned {
-    //var a: Int ohne semikolon
-   (varDefHeader <~ ColonToken(":")) ~ typeExp <~ SemicolonToken(";") ^^ {
-      case varsymb ~ t =>
-        VarDef(varsymb, t, None)
-    } |
-    (varDefHeader <~ ColonToken(":")) ~ typeExp ~ (AssignToken(":=") ~> arithExp <~ SemicolonToken(";")) ^^ {
-      case varsymb ~ t ~ e =>
-        varsymb.staticType = Some(IntTypeInfo)
-        VarDef(varsymb, t, Option(e))
+
+  private def varDef: Parser[List[VarDef]] = {
+    var result : ListBuffer[VarDef] = new ListBuffer[VarDef]()
+    varDefHeader ~ (opt(CommaToken(",") ~> rep(ident <~ opt(CommaToken(",")))) <~ ColonToken(":"))~
+      typeExp ~ opt(AssignToken(":=") ~> arithExp) <~ SemicolonToken(";") ^^ {
+      case varsymb ~ symbols ~ t ~ e =>
+        result += VarDef(varsymb, t, e)
+        if(symbols.isDefined) {
+          for (symb <- symbols.get) {
+            var a = env.defineVariable(symb)
+            a.staticType = Some(IntTypeInfo)
+            result += VarDef(a, t, None)
+          }
+        }
+        println("VARIABLES: " + result.toList)
+        result.toList
     }
   }
 
-  /*private def varsDef: Parser[VarDef2] =  {
-    (varDefHeader <~ ColonToken(":")) ~ typeExp ^^ {
-      case varsymb ~ t =>
-        varsymb.staticType = Some(IntTypeInfo)
-        VarDef2(varsymb,t)
-    }
-    /*rep(CommaToken(",") ~ ident) ~ ColonToken(":") ~ typeExp <~ SemicolonToken(";") ^^ {
-      case variables ~ types =>
-        println(variables)
-        println(types)
-    }*/
-  }*/
+
+
+  private def varDefHeader: Parser[VarSymbol] =
+    KwToken("var") ~> ident ^? (
+      env.defineVariable,
+      { name => s"$name is already defined" }
+    )
 
   private def procDef: Parser[ProcDef] = positioned {
     procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end"))  ^^ {
@@ -186,16 +186,29 @@ object ProgParsers extends TokenParsers {
         procsymb.params = Option(params.toList)
         // add local variables to procsymb
         var locals = new ListBuffer[VarSymbol]()
-        for(v <- vardefs) locals += v.symb
+        for(vardefs2 <- vardefs) {
+          for (elem <- vardefs2) {locals += elem.symb}
+        }
         procsymb.locals = Option(locals.toList)
         RuntimeOrganisation.frameLayout(1,procsymb)
-        ProcDef(procsymb, paramList, vardefs, cmds)
+        /*flatten
+         *List(List(1,2), List(3,4)).flatten
+         *> List(1,2,3,4)
+         */
+        ProcDef(procsymb, paramList, vardefs.flatten, cmds)
     }
   }
-
-  private def definition: Parser[Definition] = positioned {
-    varDef |
-      procDef
+  //TODO VARDEF ALS LISTE
+  private def definition: Parser[List[Definition]] =  {
+    varDef ^^ {
+      variables =>
+        var result: ListBuffer[Definition] = new ListBuffer[Definition]()
+        for (variable <- variables) result += variable
+        result.toList
+    } |
+      procDef ^^ {
+        proc => var list = List[Definition](proc)
+      }
   }
 
   private def paramDef: Parser[ParamDef] =
@@ -222,11 +235,7 @@ object ProgParsers extends TokenParsers {
       { name => s"$name is already defined" }
     )
 
-  private def varDefHeader: Parser[VarSymbol] =
-    KwToken("var") ~> ident ^? (
-      env.defineVariable,
-      { name => s"$name is already defined" }
-    )
+
 
   private def refParamDefHeader: Parser[RefParamSymbol] =
     KwToken("ref") ~> ident ^? (
@@ -259,8 +268,6 @@ object ProgParsers extends TokenParsers {
         case ref ~ e =>
           ref.staticType
           Assign(ref, e)
-
-
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
         case ps ~ args =>
           if(ps.params.head.lengthCompare(args.size) != 0)
