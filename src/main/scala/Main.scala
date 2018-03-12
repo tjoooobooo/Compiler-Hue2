@@ -15,7 +15,8 @@ object Main {
     //TODO proc aufruf was mit ref da
     var parsed = ProgParsers.parse(puckFile)
     var res = ZwischenCode.ZwischenCodeGenerator.translate(parsed)
-    CodeGenerator.GenAssemblerLines.gen(res)
+    var syntax = CodeGenerator.GenAssemblerLines.gen(res)
+    println(CodeGenerator.AbstractSyntaxPrinter.apply(syntax))
   }
 
 }

@@ -2,9 +2,7 @@ program
 var a,b : int;
  proc p(ref x: int, y: int)
  begin
-    y := y + 7;
     x := y;
-
  end
  proc q()
  begin
@@ -13,5 +11,4 @@ var a,b : int;
 init
 a := 1;
 b := 2;
-a := 3 + 5;
 end

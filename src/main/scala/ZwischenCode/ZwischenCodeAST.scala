@@ -1,6 +1,6 @@
 package ZwischenCode
 
-import backend.RuntimeOrganisation.RTLocInfo
+  import backend.RuntimeOrganisation.RTLocInfo
 
   /**
     * Companion object of the code generator class.
@@ -22,19 +22,13 @@ import backend.RuntimeOrganisation.RTLocInfo
     sealed abstract class MIntLoc extends MIntLocOrValue
 
     // a location within some stack frame with an int value or a global location
-    case class MIntProgLoc(locInfo: RTLocInfo) extends MIntLoc {
-      override def toString: String = s"INT[${locInfo.nesting}, ${locInfo.offset}]"
-    }
+    case class MIntProgLoc(locInfo: RTLocInfo) extends MIntLoc
 
     // immediate int value
-    case class MIntImmediateValue(d:Int) extends MIntLocOrValue {
-      override def toString: String = s"$d"
-    }
+    case class MIntImmediateValue(d:Int) extends MIntLocOrValue
 
     // Temporary MInt location (created by code generation)
-    case class TempMIntLoc(nr: Int) extends MIntLoc {
-      override def toString: String = s"t_$nr"
-    }
+    case class TempMIntLoc(nr: Int) extends MIntLoc
 
     //----------------------------------------------------
     // address values and locations
@@ -43,14 +37,10 @@ import backend.RuntimeOrganisation.RTLocInfo
     sealed abstract class MAddressLoc
 
     // a location in an stack frame with an address value or a global variable with an address value
-    case class MAddressProgLoc(locInfo: RTLocInfo) extends MAddressLoc{
-      override def toString: String = s"ADDR[${locInfo.nesting}, ${locInfo.offset}]"
-    }
+    case class MAddressProgLoc(locInfo: RTLocInfo) extends MAddressLoc
 
     // Temporary location that contains an address (created by code generation)
-    case class TempMAddressLoc(nr: Int) extends MAddressLoc {
-      override def toString: String = s"a_$nr"
-    }
+    case class TempMAddressLoc(nr: Int) extends MAddressLoc
 
 
     //----------------------------------------------------
@@ -58,15 +48,11 @@ import backend.RuntimeOrganisation.RTLocInfo
 
     // dereference the address found at an MAddressLoc: convert an r-value of type MAddress
     // to an l-value of type MInt
-    case class DeRef(addrLoc: MAddressLoc) extends MIntLoc {
-      override def toString: String = s"*[$addrLoc]"
-    }
+    case class DeRef(addrLoc: MAddressLoc) extends MIntLoc
 
     // compute the address of a MIntLoc: convert an l-value of type MInt
     // to an r-value of type MAddress
-    case class MkRef(mIntLoc: MIntLoc) extends MAddressLoc {
-      override def toString: String = s"&[$mIntLoc]"
-    }
+    case class MkRef(mIntLoc: MIntLoc) extends MAddressLoc
 
 
     // Instructions ------------------------------------------------------------------------------------------------------
@@ -86,17 +72,8 @@ import backend.RuntimeOrganisation.RTLocInfo
                             operand1: Option[MIntLoc],
                             op:       Option[MOp],
                             operand2: Option[MIntLocOrValue]
-                          ) extends IntermediateInstr {
-      override def toString: String = this match {
-        case AssignInstr(d, Some(op1), Some(o), Some(op2)) =>
-          s"\t$d = $op1 $o $op2\n"
-        case AssignInstr(d, Some(op1), None, None) =>
-          s"\t$d = $op1\n"
-        case AssignInstr(d, None, None, Some(op2)) =>
-          s"\t$d = $op2\n"
-        case _ => throw new Exception(s"internal error malformed intermediate instruction $this")
-      }
-    }
+                          ) extends IntermediateInstr
+
 
     // facilitate generation of assign instructions
     object AssignInstr {
@@ -114,43 +91,39 @@ import backend.RuntimeOrganisation.RTLocInfo
 
     // Operations on MInt values
     sealed abstract class MOp
-    case object AddOp extends MOp { override def toString: String = "+" }
-    case object SubOp extends MOp { override def toString: String = "-" }
-    case object MultOp extends MOp { override def toString: String = "*" }
-    case object DivOp extends MOp { override def toString: String = "/" }
-    case object ModOp extends MOp { override def toString: String = "%" }
+    case object AddOp extends MOp
+    case object SubOp extends MOp
+    case object MultOp extends MOp
+    case object DivOp extends MOp
+    case object ModOp extends MOp
     //bitwise operators
-    case object AndOp extends MOp { override def toString: String = "&" }
-    case object OrOp extends MOp  { override def toString: String = "|" }
-    case object XorOp extends MOp { override def toString: String = "^" }
-    case object SlOp extends MOp  { override def toString: String = "<<" }
-    case object SrOp extends MOp  { override def toString: String = ">>" }
+    case object AndOp extends MOp
+    case object OrOp extends MOp
+    case object XorOp extends MOp
+    case object SlOp extends MOp
+    case object SrOp extends MOp
 
     abstract class MRelOp
-    case object EqOp extends MRelOp { override def toString: String = "==" }
-    case object NeOp extends MRelOp { override def toString: String = "!" }
-    case object LsOp extends MRelOp { override def toString: String = "<" }
-    case object GtOp extends MRelOp { override def toString: String = ">" }
-    case object LeOp extends MRelOp { override def toString: String = "<=" }
-    case object GeOp extends MRelOp { override def toString: String = ">=" }
+    case object EqOp extends MRelOp
+    case object NeOp extends MRelOp
+    case object LsOp extends MRelOp
+    case object GtOp extends MRelOp
+    case object LeOp extends MRelOp
+    case object GeOp extends MRelOp
 
 
     // Write instruction
-    case class WriteInstr(v: MIntLocOrValue) extends IntermediateInstr {
-      override def toString: String = s"\tWRITE($v)\n"
-    }
-    case class ReadInstr(v: MIntLocOrValue) extends IntermediateInstr {
-      override def toString: String = s"\tREAD($v)\n"
-    }
+    case class WriteInstr(v: MIntLocOrValue) extends IntermediateInstr
+
+    case class ReadInstr(v: MIntLocOrValue) extends IntermediateInstr
+
 
 
     //----------------------------------------------------
     // Operations on address values
 
     // Assignment of address values
-    case class AssignAddrInstr(dest: MAddressLoc, source: MAddressLoc) extends IntermediateInstr {
-      override def toString: String = s"\t$dest = $source\n"
-    }
+    case class AssignAddrInstr(dest: MAddressLoc, source: MAddressLoc) extends IntermediateInstr
 
 
     //----------------------------------------------------
@@ -158,35 +131,23 @@ import backend.RuntimeOrganisation.RTLocInfo
 
     // Conditional jump:
     // if (operator1 op operator2) goto jumpTo
-    case class IfInstr(operand1: MIntLocOrValue, op: MRelOp, operand2: MIntLocOrValue, jumpTo: String) extends IntermediateInstr {
-      override def toString: String = s"\tIF($operand1 $op $operand2) GOTO $jumpTo\n"
-    }
+    case class IfInstr(operand1: MIntLocOrValue, op: MRelOp, operand2: MIntLocOrValue, jumpTo: String) extends IntermediateInstr
 
     // Unconditional Jump: goto label
-    case class JumpInstr(label: String) extends IntermediateInstr {
-      override def toString: String = s"\tGOTO $label\n"
-    }
+    case class JumpInstr(label: String) extends IntermediateInstr
 
     // label: Noop
-    case class LabeledInstr(label: String) extends IntermediateInstr {
-      override def toString: String = s"$label: NOOP\n"
-    }
+    case class LabeledInstr(label: String) extends IntermediateInstr
 
     // label: Noop for entry into procedure
     // labels of procedures need to handled in a way different to mere code labels
-    case class ProcEntryInstr(label: String) extends IntermediateInstr {
-      override def toString: String = s"$label: NOOP\n"
-    }
+    case class ProcEntryInstr(label: String) extends IntermediateInstr
 
     // call instruction
-    case class CallInstr(callLabel: String) extends IntermediateInstr {
-      override def toString: String = s"\tJUMP $callLabel\n"
-    }
+    case class CallInstr(callLabel: String) extends IntermediateInstr
 
     // return instruction
-    case object ReturnInstr extends IntermediateInstr {
-      override def toString: String = s"\tJUMP RR\n"
-    }
+    case object ReturnInstr extends IntermediateInstr
 
 
 
@@ -195,64 +156,41 @@ import backend.RuntimeOrganisation.RTLocInfo
     // Operations on the runtime stack
 
     // push MInt value on stack
-    case class PushMIntInstr(t: MIntLocOrValue)  extends IntermediateInstr {
-      override def toString: String = s"\tPUSH_INT $t\n"
-    }
+    case class PushMIntInstr(t: MIntLocOrValue)  extends IntermediateInstr
 
     // push Address value on stack
-    case class PushMAddressInstr(a: MAddressLoc) extends IntermediateInstr {
-      override def toString: String = s"\tPUSH_ADDR $a\n"
-    }
+    case class PushMAddressInstr(a: MAddressLoc) extends IntermediateInstr
 
     // push code address on stack
-    case class PushCodeAddrInstr(returnLabel: String) extends IntermediateInstr {
-      override def toString: String = s"\tPUSH_CODE_ADDR $returnLabel\n"
-    }
+    case class PushCodeAddrInstr(returnLabel: String) extends IntermediateInstr
 
     // push frame pointer on stack
-    case object PushFPInstr                      extends IntermediateInstr {
-      override def toString: String = s"\tPUSH_FP\n"
-    }
+    case object PushFPInstr                      extends IntermediateInstr
 
     // pop MInt value from stack
-    case object PopMIntInstr                     extends IntermediateInstr {
-      override def toString: String = s"\tPOP_INT\n"
-    }
+    case object PopMIntInstr                     extends IntermediateInstr
 
     // pop address value from stack
-    case object PopMAddressInstr                 extends IntermediateInstr {
-      override def toString: String = s"\tPOP_ADDR\n"
-    }
+    case object PopMAddressInstr                 extends IntermediateInstr
 
     // pop code address from stack and store it in register RR
-    case object PopCodeAddrToRRInstr             extends IntermediateInstr {
-      override def toString: String = s"\tRR = POP_CODE_ADDR\n"
-    }
+    case object PopCodeAddrToRRInstr             extends IntermediateInstr
 
     // pop frame pointer from stack to register FP
-    case object PopFPInstr                       extends IntermediateInstr {
-      override def toString: String = s"\tFP = POP_FP\n"
-    }
+    case object PopFPInstr                       extends IntermediateInstr
+
 
     // copy SP to FP
-    case object StoreSPasFPInstr                 extends IntermediateInstr {
-      override def toString: String = s"\tFP = SP\n"
-    }
+    case object StoreSPasFPInstr                 extends IntermediateInstr
 
     //----------------------------------------------------
     // Instructions that allocate static data areas
 
     // allocate static storage with size storage cells
-    case class AllocStaticInstr(size: Int)  extends IntermediateInstr {
-      override def toString: String = s"\tALLOC(size: $size)\n"
-    }
+    case class AllocStaticInstr(size: Int)  extends IntermediateInstr
 
 
 
     // -------------------------------------------------------------------------------------------------------------------
-
-
-
-
 
 }

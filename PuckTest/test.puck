@@ -1,13 +1,6 @@
 program //kommentar
-var a,b: int;
-proc t()
-var x,y : int;
-begin
- x := 2 + y;
- x := 7 * 100;
-end
+var a: int;
 init
-    a := 4;
-    b := 78;
-    a := b;
+    a := 5;
+    write(a);
 end

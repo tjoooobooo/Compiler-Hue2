@@ -15,17 +15,17 @@ object ZwischenCodeGenerator {
     // Definition of intermediate code
     private val tempsCount = 25 // number of temporary locations (registers) for MInt and MAddress each
     // create temporary locations
-    private var tempsMInt: List[Int] = (0 to tempsCount).toList
+    private var tempsMInt: List[Int] = (1 to tempsCount).toList
 
     // get next unused MInt temporary
-    private def acquireMIntTemp(): TempMIntLoc = {
+    def acquireMIntTemp(): TempMIntLoc = {
       val res = TempMIntLoc(tempsMInt.head)
       tempsMInt = tempsMInt.tail
       res
     }
 
     // release a MInt temporary
-    private def releaseMIntTemp(t: TempMIntLoc) : Unit = {
+    def releaseMIntTemp(t: TempMIntLoc) : Unit = {
       tempsMInt = t.nr :: tempsMInt
     }
 
@@ -338,16 +338,17 @@ object ZwischenCodeGenerator {
       case _ =>
     }
     RuntimeOrganisation.topLevelLayout(globalList.toList)
-
-    prog.defList foreach{
-      case procDef@ProcDef(_, _, _, _) => genCodeProc(procDef)
-      case _ =>
-    }
-    codeBuf += ProcEntryInstr("main")
     prog.defList foreach{
       case varDef@VarDef(_,_,_) => genCodeGlobVarDef(varDef)
       case _ =>
     }
+    prog.defList foreach{
+      case procDef@ProcDef(_, _, _, _) => genCodeProc(procDef)
+      case _ =>
+    }
+
+
+    codeBuf += ProcEntryInstr("main")
     prog.cmdList.foreach{genCodeCmd}
 
 
