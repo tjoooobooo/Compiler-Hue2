@@ -1,0 +1,161 @@
+;This is a compiled example from the puck language using arrays
+
+.object ArrayTest
+.export proc_ArrayTest_printarray
+proc_ArrayTest_printarray:
+ADDC $29 $31 0
+SUBC $31 $31 0x4
+SETW $1 -0x3
+ADD $1 $29 $1
+SETW $2 0
+STW $2 $1 0
+L0_proc_ArrayTest_printarray_while_condition:
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0x5
+LTI $1 $1 $2
+BRF $1 L1_proc_ArrayTest_printarray_while_end
+SETW $2 -0x3
+ADD $2 $29 $2
+LDW $2 $2 0
+SETW $1 0x4
+MULU $2 $2 $1
+SETW $1 0x1
+ADD $1 $29 $1
+LDW $1 $1 0
+ADD $2 $2 $1
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+SETW $1 -0x3
+ADD $1 $29 $1
+SETW $2 -0x3
+ADD $2 $29 $2
+LDW $2 $2 0
+SETW $3 0x1
+ADD $2 $2 $3
+STW $2 $1 0
+JMP L0_proc_ArrayTest_printarray_while_condition
+L1_proc_ArrayTest_printarray_while_end:
+ADDC $31 $31 0x8
+JMPR $30
+.export proc_ArrayTest_fillarray
+proc_ArrayTest_fillarray:
+ADDC $29 $31 0
+SUBC $31 $31 0x4
+SETW $1 -0x3
+ADD $1 $29 $1
+SETW $2 0
+STW $2 $1 0
+L0_proc_ArrayTest_fillarray_while_condition:
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0x5
+LTI $1 $1 $2
+BRF $1 L1_proc_ArrayTest_fillarray_while_end
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0x4
+MULU $1 $1 $2
+SETW $2 0x1
+ADD $2 $29 $2
+LDW $2 $2 0
+ADD $1 $1 $2
+SETW $2 -0x3
+ADD $2 $29 $2
+LDW $2 $2 0
+SETW $3 0x15
+ADD $3 $29 $3
+LDW $3 $3 0
+ADD $2 $2 $3
+STW $2 $1 0
+SETW $1 -0x3
+ADD $1 $29 $1
+SETW $2 -0x3
+ADD $2 $29 $2
+LDW $2 $2 0
+SETW $3 0x1
+ADD $2 $2 $3
+STW $2 $1 0
+JMP L0_proc_ArrayTest_fillarray_while_condition
+L1_proc_ArrayTest_fillarray_while_end:
+ADDC $31 $31 0xC
+JMPR $30
+.executable main
+.export main
+main:
+ADDC $29 $31 0
+SUBC $31 $31 0x68
+SETW $1 -0x3
+ADD $1 $29 $1
+SETW $2 0
+STW $2 $1 0
+L0_main_while_condition:
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0x5
+LTI $1 $1 $2
+BRF $1 L1_main_while_end
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+SUBC $31 $31 0x8
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0x14
+MULU $1 $1 $2
+SETW $2 -0x67
+ADD $2 $29 $2
+ADD $1 $1 $2
+SETW $2 0x1
+ADD $2 $2 $31
+STW $1 $2 0
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0xA
+MULI $1 $1 $2
+SETW $2 0x15
+ADD $2 $2 $31
+STW $1 $2 0
+CALL $30 proc_ArrayTest_fillarray
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+SUBC $31 $31 0x4
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+SETW $2 0x14
+MULU $1 $1 $2
+SETW $2 -0x67
+ADD $2 $29 $2
+ADD $1 $1 $2
+SETW $2 0x1
+ADD $2 $2 $31
+STW $1 $2 0
+CALL $30 proc_ArrayTest_printarray
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
+SETW $1 -0x3
+ADD $1 $29 $1
+SETW $2 -0x3
+ADD $2 $29 $2
+LDW $2 $2 0
+SETW $3 0x1
+ADD $2 $2 $3
+STW $2 $1 0
+JMP L0_main_while_condition
+L1_main_while_end:
+ADDC $31 $31 0x68
+JMPR $30

@@ -1,0 +1,44 @@
+;This is a compiled example from Puck using loops and conditions
+
+.object ControlStructureTest
+var_ControlStructureTest_i:
+.word 
+.executable main
+.export main
+main:
+ADDC $29 $31 0
+SUBC $31 $31 0
+SETW $1 var_ControlStructureTest_i
+SETW $2 0
+STW $2 $1 0
+L0_main_while_condition:
+SETW $1 var_ControlStructureTest_i
+LDW $1 $1 0
+SETW $2 0x14
+LEI $1 $1 $2
+BRF $1 L1_main_while_end
+L2_main_if_condition:
+SETW $1 var_ControlStructureTest_i
+LDW $1 $1 0
+SETW $2 0x2
+MODI $1 $1 $2
+SETW $2 0
+EQ $1 $1 $2
+BRF $1 L3_main_else
+SETW $2 var_ControlStructureTest_i
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+L3_main_else:
+L4_main_if_end:
+SETW $1 var_ControlStructureTest_i
+SETW $2 var_ControlStructureTest_i
+LDW $2 $2 0
+SETW $3 0x1
+ADD $2 $2 $3
+STW $2 $1 0
+JMP L0_main_while_condition
+L1_main_while_end:
+ADDC $31 $31 0
+JMPR $30

@@ -1,0 +1,63 @@
+;This includes valid examples for all syntactic elements
+
+.object AllInstructions
+
+.executable start
+.initialization start
+.export start
+.import StdIO printCharacter importedLabel
+.import StdIO printLine
+
+start:
+ADD $1 $6 $20
+SUB $1 $6 $20
+MULU $1 $6 $20
+DIVU $1 $6 $20
+MODU $1 $6 $20
+MULI $1 $6 $20
+DIVI $1 $6 $20
+MODI $1 $6 $20
+AND $1 $6 $20
+OR $1 $6 $20
+XOR $1 $6 $20
+SL $1 $6 $20
+SR $1 $6 $20
+EQ $1 $6 $20
+NE $1 $6 $20
+LTI $1 $6 $20
+LEI $1 $6 $20
+GTI $1 $6 $20
+GEI $1 $6 $20
+LTU $1 $6 $20
+LEU $1 $6 $20
+GTU $1 $6 $20
+GEU $1 $6 $20
+JMP start
+JMPR $30
+CALL $30 start
+CALLR $30 $20
+HALT
+BRF $1 importedLabel
+.byte
+BRT $2 importedLabel
+LDB $2 $3 10
+LDHW $2 $3 10
+LDW $2 $3 10
+STB $2 $3 10
+STHW $2 $3 10
+.halfword 50
+STW $2 $3 10
+INC $7
+OUTC $7
+INU $7
+.word
+OUTU $7
+INI $7
+OUTI $7
+INF $7
+OUTF $7
+SETB $11 123124
+SETHW $11 123124
+SETW $11 123124
+test:
+.initialization test

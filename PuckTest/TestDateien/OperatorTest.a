@@ -1,0 +1,93 @@
+;This is a compiled example from Puck showcasing operators
+
+.object OperatorTest
+var_OperatorTest_a:
+.word 
+var_OperatorTest_b:
+.word 
+var_OperatorTest_c:
+.word 
+.executable initialize
+.initialization initialize
+.export initialize
+initialize:
+ADDC $29 $31 0
+SUBC $31 $31 0
+SETW $1 var_OperatorTest_a
+SETW $2 0x1
+STW $2 $1 0
+SETW $1 var_OperatorTest_b
+SETW $2 0xEA
+STW $2 $1 0
+SETW $1 var_OperatorTest_c
+SETW $2 0x4A
+STW $2 $1 0
+ADDC $31 $31 0
+JMPR $30
+.executable main
+.export main
+main:
+ADDC $29 $31 0
+SUBC $31 $31 0
+SETW $1 var_OperatorTest_a
+SETW $2 var_OperatorTest_b
+LDW $2 $2 0
+SETW $3 var_OperatorTest_c
+LDW $3 $3 0
+ADD $2 $2 $3
+STW $2 $1 0
+SETW $2 var_OperatorTest_a
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+SETW $1 var_OperatorTest_a
+SETW $2 var_OperatorTest_b
+LDW $2 $2 0
+SETW $3 var_OperatorTest_c
+LDW $3 $3 0
+SUB $2 $2 $3
+STW $2 $1 0
+SETW $2 var_OperatorTest_a
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+SETW $1 var_OperatorTest_a
+SETW $2 var_OperatorTest_b
+LDW $2 $2 0
+SETW $3 var_OperatorTest_c
+LDW $3 $3 0
+MULI $2 $2 $3
+STW $2 $1 0
+SETW $2 var_OperatorTest_a
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+SETW $1 var_OperatorTest_a
+SETW $2 var_OperatorTest_b
+LDW $2 $2 0
+SETW $3 var_OperatorTest_c
+LDW $3 $3 0
+DIVI $2 $2 $3
+STW $2 $1 0
+SETW $2 var_OperatorTest_a
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+SETW $1 var_OperatorTest_a
+SETW $2 var_OperatorTest_b
+LDW $2 $2 0
+SETW $3 var_OperatorTest_c
+LDW $3 $3 0
+MODI $2 $2 $3
+STW $2 $1 0
+SETW $2 var_OperatorTest_a
+LDW $2 $2 0
+OUTI $2
+SETB $2 0xA
+OUTC $2
+ADDC $31 $31 0
+JMPR $30

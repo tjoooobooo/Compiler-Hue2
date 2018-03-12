@@ -1,0 +1,28 @@
+puck.exe Test.main.x
+.object Test
+global_vars:
+.word
+.word
+.executable main
+.export main
+
+main:
+
+SETW $1 global_vars     ;erste Variable
+SETW $2 0x5
+STW $2 $1 0             ;erste Variable hat den Wert 5
+
+SETW $1 global_vars         ;zweite Variable
+ADDC $1 $1 0x4              ;Ab hier wird die zweite Variable benutzt
+SETW $3 0x6
+STW $3 $1 0                     ;Variable zwei hat den Wert 6
+
+SUBC $1 $1 0x4              ;Hier wieder die erste
+LDW $1 $1 0
+
+OUTI $1
+
+
+
+JMPR $30
+

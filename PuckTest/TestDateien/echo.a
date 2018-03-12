@@ -1,0 +1,13 @@
+;This program echos every character the user inputs. Reminder: This includes a new line that is entered when confirming with enter
+
+.object Echo
+
+.import StdIO printCharacter printCharacter
+.executable main
+
+main:
+INC $1
+STB $1 STACK 0
+SUBC STACK STACK 1
+CALL RETURN printCharacter
+JMP main

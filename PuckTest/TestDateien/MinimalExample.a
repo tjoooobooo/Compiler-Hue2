@@ -1,0 +1,15 @@
+;This is the compiled form of a minimal Puck example
+
+.object Minimal
+var_Minimal_x:
+.word 
+.executable main
+.export main
+main:
+SETW $1 var_Minimal_x
+SETW $2 0x8
+STW $2 $1 0
+SETW $2 var_Minimal_x
+LDW $2 $2 0
+OUTI $2
+JMPR $30
