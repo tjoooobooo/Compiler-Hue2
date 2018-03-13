@@ -1,0 +1,32 @@
+.object Test
+.executable main
+.export main
+global_vars:
+.word
+.word
+
+q:
+ADDC $29 $31 0
+
+ADDC $1 $29 0x1  ;Parameter wird aus dem Stack geholt  offset = 1
+LDW $1 $1 0
+
+OUTI $1
+JMPR $30
+
+main:
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+
+SETW $1 0x5
+
+SETW $2 0x1            ;PushMadressInsrt macht Parameter in Stack  in diesem Fall die 5
+ADD $2 $2 $31
+STW $1 $2 0
+
+CALL $30 q
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
+JMPR $30

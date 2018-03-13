@@ -1,14 +1,8 @@
 program
-var x,y : int;
-proc p(a: int, b: int)
+proc p(a: int)
 begin
-    a := b;
+    write(a);
 end
-proc q()
-   begin
-       p(x,y);
-   end
 init
-   x := 1;
-   y := 2;
+   p(5);
 end

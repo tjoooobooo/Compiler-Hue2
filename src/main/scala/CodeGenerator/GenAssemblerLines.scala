@@ -10,13 +10,17 @@ object GenAssemblerLines {
 
   def gen(zwischenCode: List[IntermediateInstr]): List[AssemblerLine] = {
     var listBuilder: ListBuffer[AssemblerLine] = new ListBuffer[AssemblerLine]
+    var procOffset : Int = 0
+
     listBuilder += ObjectDirective("Test")
     listBuilder += ExecutableDirective("main")
     listBuilder += ExportDirective("main")
+
     zwischenCode foreach println
     println("-----------------------------------")
+
     var hasGlobalVars: Boolean = false
-    zwischenCode foreach {
+    for(code <- zwischenCode) code match {
 
       case AssignInstr(dest, operand1, op, operand2) =>
 
@@ -42,7 +46,8 @@ object GenAssemblerLines {
               solveProgLoc(locInfo, t)
               if(operand1.isDefined & op.isEmpty) {
                 operand1.get match {
-                  case MIntProgLoc(info) =>solveProgLoc(info,t2)
+                  case MIntProgLoc(info) =>
+                    solveProgLoc(info,t2)
                 }
                 listBuilder += Stw(t2.nr,t.nr,0)
               } else if(operand2.isDefined & op.isEmpty){
@@ -61,14 +66,23 @@ object GenAssemblerLines {
           case TempMIntLoc(nr) =>
             operand1 match {
               case Some(MIntProgLoc(locInfo)) =>
-                listBuilder += Setw(nr, Right("global_vars"))
-                listBuilder += Ldw(nr, nr, -locInfo.offset * 4)
+                if(locInfo.nesting == 0){
+                  listBuilder += Setw(nr, Right("global_vars"))
+                  listBuilder += Ldw(nr, nr, -locInfo.offset * 4)
+                } else {
+                  solveProgLoc(locInfo,TempMIntLoc(nr))
+                }
+
+
               case None => listBuilder += Setw(nr, Left(getValue(operand2)))
             }
 
           case DeRef(addrLoc) => listBuilder += Ldw(getRegisterDeRef(addrLoc), getRegisterDeRef(addrLoc), 0)
           case _ => println("ASSIGN MATCH ERROR--------------------------")
+
         }
+        //if(zwischenCode(zwischenCode.indexOf(code) + 1).isInstanceOf[PushMIntInstr]) println("hier kommt den")
+
 
       case WriteInstr(v) =>
         v match {
@@ -116,6 +130,16 @@ object GenAssemblerLines {
       case ReturnInstr => listBuilder += Jmpr(30)
 
       case PushMIntInstr(t) =>
+        t match{
+          case TempMIntLoc(nr) =>
+
+            listBuilder += Setw(nr+1,Left(-procOffset*4+1))
+            listBuilder += Add(nr+1,nr+1,31)
+            listBuilder += Stw(nr,nr+1,0)
+            procOffset += 1
+        }
+
+
 
       case PushMAddressInstr(a) =>
 
@@ -135,6 +159,7 @@ object GenAssemblerLines {
       case PopFPInstr =>
         listBuilder += Ldw(30, 31, 5)
         listBuilder += Ldw(29, 31, 1)
+        listBuilder += Addc(31,31,8)
 
       case StoreSPasFPInstr => listBuilder += Addc(29, 31, 0)
 
@@ -178,8 +203,14 @@ object GenAssemblerLines {
     }
 
       def solveProgLoc(info: RTLocInfo, t: TempMIntLoc): Unit = {
-        listBuilder += Addc(t.nr, 29, 1 + 4 * (info.offset - 2))
-        listBuilder += Ldw(t.nr, t.nr, 0)
+        if(info.nesting == 0) {
+          listBuilder += Addc(t.nr, 29, 1 + 4 * (info.offset - 2))
+          listBuilder += Ldw(t.nr, t.nr, 0)
+        } else {
+          listBuilder += Addc(t.nr,29,1 + (info.offset - 2) * 4)
+          listBuilder += Ldw(t.nr,t.nr,0)
+        }
+
       }
 
       def solveBoolExp(value: MIntLocOrValue, op: MRelOp, value2: MIntLocOrValue): Unit = {
