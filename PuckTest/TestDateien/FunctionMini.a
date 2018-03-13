@@ -1,0 +1,59 @@
+;This is a compiled example from Puck using Procedures
+global_vars:
+.word
+.word
+.object FunctionMini
+.export p
+p:
+ADDC $29 $31 0
+ADDC $1 $29 0x1
+LDW $1 $1 0
+ADDC $2 $29 0x5
+LDW $2 $2 0
+STW $2 $1 0
+ADDC $3 $29 0x5
+LDW $3 $3 0
+ADDC $4 $29 0x9
+LDW $4 $4 0
+STW $4 $3 0
+
+JMPR $30
+
+main:
+ADDC $29 $31 0x0
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+SUBC $31 $31 0x8
+SETW $1 global_vars
+SETW $2 0x1
+ADD $2 $2 $31
+STW $1 $2 0x0
+SETW $1 global_vars
+ADDC $1 $1 0x4
+LDW $1 $1 0x0
+SETW $2 0x5
+ADD $2 $2 $31
+STW $1 $2 0x0
+CALL $30 p
+
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
+JMPR $30
+
+.executable main
+.export main
+q:
+SETW $5 0x1
+SETW $6 global_vars
+STW $5 $6 0
+SETW $5 0x2
+SETW $7 global_vars
+STW $5 $7 0x4
+SETW $5 0x3
+SETW $8 global_vars
+STW $5 $8 0x8
+
+
+JMPR $30

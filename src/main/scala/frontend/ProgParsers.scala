@@ -55,7 +55,8 @@ object ProgParsers extends TokenParsers {
   def boolExp: Parser[BoolExp] =
     (arithExp <~ CompOpToken("<"))  ~ arithExp ^^ { case e1 ~ e2 => Less(e1, e2) } |
     (arithExp <~ CompOpToken(">"))  ~ arithExp ^^ { case e1 ~ e2 => Greater(e1, e2) } |
-    (arithExp <~ CompOpToken("="))  ~ arithExp ^^ { case e1 ~ e2 => Equal(e1, e2) } |
+    (arithExp <~ CompOpToken("=="))  ~ arithExp ^^ { case e1 ~ e2 => Equal(e1, e2) } |
+      (arithExp <~ CompOpToken("!="))  ~ arithExp ^^ { case e1 ~ e2 => NotEq(e1, e2) } |
     (arithExp <~ CompOpToken("<=")) ~ arithExp ^^ { case e1 ~ e2 => LessEq(e1, e2) } |
     (arithExp <~ CompOpToken(">=")) ~ arithExp ^^ { case e1 ~ e2 => GreaterEq(e1, e2) }
 

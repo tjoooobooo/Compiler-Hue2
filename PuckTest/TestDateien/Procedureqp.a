@@ -1,0 +1,15 @@
+program //kommentar
+var x,y : int;
+
+proc p(a: int, b: int)
+begin
+    a := b;
+end
+proc q()
+   begin
+       p(x,y);
+   end
+init
+   x := 1;
+   y := 2;
+end

@@ -1,27 +1,34 @@
 .object Test
-global_vars:
-.word
-.word
 .executable main
 .export main
-
-main:
-
-SETW $1 global_vars     ;erste Variable
-SETW $2 0x5
-STW $2 $1 0             ;erste Variable hat den Wert 5
-
-SETW $1 global_vars         ;zweite Variable
-ADDC $1 $1 0x4              ;Ab hier wird die zweite Variable benutzt
-SETW $3 0x6
-STW $3 $1 0                     ;Variable zwei hat den Wert 6
-
-SUBC $1 $1 0x4              ;Hier wieder die erste
+global_vars:
+.word 
+.word 
+p:
+ADDC $29 $31 0
+ADDC $1 $29 0x1
 LDW $1 $1 0
-
-OUTI $1
-
-
-
+ADDC $2 $29 0x5
+LDW $2 $2 0
+STW $2 $1 0
 JMPR $30
-
+q:
+ADDC $29 $31 0
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+CALL $30 p
+L_1:
+ADDC $31 $31 0x4
+ADDC $31 $31 0x4
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+JMPR $30
+main:
+SETW $2 0x1
+SETW $1 global_vars
+STW $2 $1 0
+SETW $2 0x2
+SETW $3 global_vars
+STW $2 $3 0x4
+JMPR $30

@@ -202,7 +202,7 @@ object ZwischenCodeGenerator {
           codeBuf += PushCodeAddrInstr(returnLabel)
 
           codeBuf += CallInstr(procSymbToLabel(pSymb))  // call procedure
-          codeBuf += LabeledInstr(returnLabel)
+          codeBuf += LabeledInstr(returnLabel) //TODO label richtig?
 
           // clean stack in reverse order
           // return address has already been poped by called procedure
@@ -285,15 +285,6 @@ object ZwischenCodeGenerator {
           }
       }
 
-      // fill locals with init values
-      /*
-      procDef.locals.foreach {
-        case VarDef(symb, _, initExp) =>
-          val varLoc = MIntProgLoc(symb.rtLocInfo.get)
-          genCodeValExp(initExp.get, varLoc)
-        case _ => // ignore
-      }
-      */
       // code for body
       procDef.cmds.foreach( cmd => genCodeCmd(cmd) )
 

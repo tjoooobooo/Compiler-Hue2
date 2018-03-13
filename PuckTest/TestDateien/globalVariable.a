@@ -1,0 +1,31 @@
+.object Test
+global_vars:
+.word
+.word
+.executable main
+.export main
+
+main:
+SETW $1 global_vars
+SETW $2 0x5
+STW $2 $1 0
+
+SETW $1 global_vars
+ADDC $1 $1 0x4
+SETW $2 0x3
+STW $2 $1 0
+
+SETW $2 global_vars
+ADDC $2 $2 0x4
+LDW $2 $2 0
+
+SETW $3 global_vars
+LDW $3 $3 0
+
+OUTI $3
+OUTI $2
+
+ADD $4 $3 $2
+OUTI $4
+
+JMPR $30

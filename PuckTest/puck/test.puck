@@ -1,6 +1,14 @@
-program //kommentar
-var a: int;
+program
+var x,y : int;
+proc p(a: int, b: int)
+begin
+    a := b;
+end
+proc q()
+   begin
+       p(x,y);
+   end
 init
-    a := 5;
-    write(a);
+   x := 1;
+   y := 2;
 end

@@ -12,18 +12,20 @@ SETB $2 0xA
 OUTC $2
 ADDC $31 $31 0
 JMPR $30
+
 .export proc_FunctionTest_valueparameter
 proc_FunctionTest_valueparameter:
 ADDC $29 $31 0
 SUBC $31 $31 0
 SETW $2 0x1
-ADD $2 $29 $2
+ADD $2 $29 $2 ;2 = offset
 LDW $2 $2 0
 OUTI $2
 SETB $2 0xA
 OUTC $2
 ADDC $31 $31 0x4
 JMPR $30
+
 .export proc_FunctionTest_refparameter
 proc_FunctionTest_refparameter:
 ADDC $29 $31 0
@@ -42,6 +44,7 @@ SETW $2 0xB
 STW $2 $1 0
 ADDC $31 $31 0x4
 JMPR $30
+
 .executable local
 .export local
 local:
@@ -59,6 +62,7 @@ SETB $2 0xA
 OUTC $2
 ADDC $31 $31 0x4
 JMPR $30
+
 .export proc_FunctionTest_local2
 proc_FunctionTest_local2:
 ADDC $29 $31 0
@@ -77,6 +81,7 @@ SETB $2 0xA
 OUTC $2
 ADDC $31 $31 0x8
 JMPR $30
+
 .export proc_FunctionTest_local3
 proc_FunctionTest_local3:
 ADDC $29 $31 0
@@ -97,9 +102,10 @@ OUTC $2
 ADDC $31 $31 0x8
 JMPR $30
 var_FunctionTest_g:
-.word 
+.word
 .executable main
 .export main
+
 main:
 ADDC $29 $31 0
 SUBC $31 $31 0x4
@@ -111,6 +117,7 @@ CALL $30 parameterless
 LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8
+
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
@@ -123,6 +130,7 @@ CALL $30 proc_FunctionTest_valueparameter
 LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8
+
 SETW $1 var_FunctionTest_g
 SETW $2 0x11
 STW $2 $1 0
@@ -137,6 +145,7 @@ STW $1 $2 0
 CALL $30 proc_FunctionTest_refparameter
 LDW $30 $31 0x5
 LDW $29 $31 0x1
+
 ADDC $31 $31 0x8
 SETW $2 var_FunctionTest_g
 LDW $2 $2 0
@@ -163,6 +172,7 @@ CALL $30 proc_FunctionTest_local2
 LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8
+
 SETW $1 -0x3
 ADD $1 $29 $1
 SETW $2 0x2C
@@ -179,6 +189,7 @@ STW $1 $2 0
 CALL $30 proc_FunctionTest_local3
 LDW $30 $31 0x5
 LDW $29 $31 0x1
+
 ADDC $31 $31 0x8
 ADDC $31 $31 0x4
 JMPR $30

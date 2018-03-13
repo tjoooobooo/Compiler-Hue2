@@ -31,6 +31,7 @@ object AssemblerAST {
   case class And(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Or(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Xor(dstR: Int, op1R: Int, op2R: Int) extends Instruction
+
   case class Sl(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Sr(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Eq(dstR: Int, op1R: Int, op2R: Int) extends Instruction
@@ -39,6 +40,7 @@ object AssemblerAST {
   case class Lei(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Gti(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Gei(dstR: Int, op1R: Int, op2R: Int) extends Instruction
+
   case class Ltu(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Leu(dstR: Int, op1R: Int, op2R: Int) extends Instruction
   case class Gtu(dstR: Int, op1R: Int, op2R: Int) extends Instruction

@@ -9,11 +9,11 @@ import scala.util.parsing.input.{Position, Reader}
  */
 class ProgLexical extends ProgTokens {
 
-  private val numberPatS  = """(0|(?:[1-9][0-9]*))"""
+  private val numberPatS  = """(0|-?(?:[1-9][0-9]*))"""
   private val idPatS      = """(\w+)"""
   private val addOpPatS   = """(\+|\-)"""
   private val multOpPatS  = """(\*|/|%)"""
-  private val compOpPatS  = """(<=|>=|=|<|>)"""
+  private val compOpPatS  = """(<=|>=|==|<|>|!=)"""
   private val bitwiseOpPatS = """(&|\||\^|<<|>>)""" // neu
   private val assignPatS  = """(:=)"""
   private val keywordPatS = """(proc|int|program|begin|end|var|if|fi|then|else|while|do|od|write|read|ref|init)"""
