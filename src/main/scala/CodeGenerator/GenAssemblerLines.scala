@@ -32,12 +32,26 @@ object GenAssemblerLines {
                 solveAssignExp(operand1, op, operand2)
                 listBuilder += Setw(getValue(operand2), Right("global_vars"))
                 listBuilder += Stw(getValue(operand1), getValue(operand2), 0)
-              } else {
+              } else if(operand2.isDefined) {
+                // AssignInstr(MIntProgLoc(RTLocInfo(0,0)),None,None,Some(MIntImmediateValue(5)))
                 var t, t2 = acquireMIntTemp()
                 listBuilder += Setw(t.nr, Left(getValue(operand2)))
                 listBuilder += Setw(t2.nr, Right("global_vars"))
                 listBuilder += Stw(t.nr, t2.nr, -locInfo.offset * 4)
                 releaseMIntTemp(t)
+              } else if(operand1.isDefined) {
+                operand1.get match {
+                  case MIntProgLoc(info) =>
+                    var t,t2 = acquireMIntTemp()
+                    listBuilder += Setw(t.nr, Right("global_vars"))
+                    listBuilder += Ldw(t.nr,t.nr,-locInfo.offset * 4)
+                    listBuilder += Setw(t2.nr, Right("global_vars"))
+                    listBuilder += Stw(t.nr, t2.nr, -info.offset * 4)
+                    releaseMIntTemp(t)
+                    releaseMIntTemp(t2)
+                  // t steht wert drinnen
+                }
+
               }
               // lokale Variablen
             } else {

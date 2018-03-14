@@ -1,9 +1,8 @@
 program
-proc p(a: int,b: int)
-begin
-    a := b;
-    write(a);
-end
+var amk,lan: int;
 init
-   p(5,10);
+   amk := 5;
+   amk := lan;
+   write(lan);
+   write(amk);
 end

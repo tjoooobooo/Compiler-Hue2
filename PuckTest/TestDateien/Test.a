@@ -1,32 +1,21 @@
 .object Test
 .executable main
 .export main
-p:
-ADDC $29 $31 0
-ADDC $2 $29 0x1
-LDW $2 $2 0
-ADDC $3 $29 0x5
-LDW $3 $3 0
-STW $3 $2 0
-ADDC $1 $29 0x1
-LDW $1 $1 0
-OUTI $1
-JMPR $30
+global_vars:
+.word 
+.word 
 main:
-SUBC $31 $31 0x8
-STW $29 $31 0x1
-STW $30 $31 0x5
-SETW $2 0xA
-SETW $3 0x1
-ADD $3 $3 $31
-STW $2 $3 0
-SETW $2 0x5
-SETW $3 -0x3
-ADD $3 $3 $31
-STW $2 $3 0
-CALL $30 p
-L_1:
-LDW $30 $31 0x5
-LDW $29 $31 0x1
-ADDC $31 $31 0x8
+SETW $3 0x5
+SETW $4 global_vars
+STW $3 $4 0
+SETW $3 global_vars
+LDW $3 $3 0
+SETW $5 global_vars
+STW $3 $5 0x4
+SETW $1 global_vars
+LDW $1 $1 0x4
+OUTI $1
+SETW $2 global_vars
+LDW $2 $2 0
+OUTI $2
 JMPR $30
