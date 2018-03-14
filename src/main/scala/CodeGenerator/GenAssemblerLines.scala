@@ -165,7 +165,6 @@ object GenAssemblerLines {
 
       case CallInstr(callLabel) =>
         listBuilder += Call(30, callLabel)
-        paramCounter = 0
 
       case ReturnInstr => listBuilder += Jmpr(30)
 
@@ -196,6 +195,7 @@ object GenAssemblerLines {
         listBuilder += Stw(29,31,1)
         listBuilder += Stw(30,31,5)
         //TODO parameter zählen?
+        listBuilder += Subc(31,31,paramCounter*4)
 
 
       case PopMIntInstr =>

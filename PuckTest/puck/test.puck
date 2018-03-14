@@ -1,9 +1,19 @@
 program
 var a,b: int;
+proc test2(f: int)
+begin
+    write(f);
+end
+proc test(funk: int)
+begin
+    write(3);
+    write(a);
+end
 proc p(x: int;y: int)
 begin
     x:=y;
     write(x);
+    test(b);
 end
 proc q()
 begin
@@ -13,4 +23,5 @@ init
    a := 10;
    b := 2;
    q();
+   test2(7);
 end
