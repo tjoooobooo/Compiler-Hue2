@@ -1,8 +1,19 @@
 program
-var amk,lan: int;
+var a,b: int;
+proc p(x: int,y: int)
+begin
+    write(x);
+    write(y);
+    x:=y;
+    write(x);
+    write(y);
+end
+proc q()
+begin
+    p(a,b);
+end
 init
-   amk := 5;
-   amk := lan;
-   write(lan);
-   write(amk);
+   a := 10;
+   b := 2;
+   q();
 end

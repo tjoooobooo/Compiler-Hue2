@@ -19,6 +19,13 @@ object GenAssemblerLines {
     zwischenCode foreach println
     println("-----------------------------------")
 
+  var paramCounter = 0
+  for(code <- zwischenCode) code match {
+    case PushMIntInstr(_)|
+    PushMAddressInstr(_) => paramCounter += 1
+    case _ =>
+  }
+
     var hasGlobalVars: Boolean = false
     for(code <- zwischenCode) code match {
 
@@ -26,12 +33,12 @@ object GenAssemblerLines {
 
         dest match {
           case MIntProgLoc(locInfo) =>
-            // globale Variablen zuweisungen
+            // GLOBALE VARIABLEN zuweisungen
             if (locInfo.nesting == 0) {
               if (operand1.isDefined & operand2.isDefined) {
                 solveAssignExp(operand1, op, operand2)
                 listBuilder += Setw(getValue(operand2), Right("global_vars"))
-                listBuilder += Stw(getValue(operand1), getValue(operand2), 0)
+                listBuilder += Stw(getValue(operand1), getValue(operand2), -locInfo.offset * 4)
               } else if(operand2.isDefined) {
                 // AssignInstr(MIntProgLoc(RTLocInfo(0,0)),None,None,Some(MIntImmediateValue(5)))
                 var t, t2 = acquireMIntTemp()
@@ -39,7 +46,9 @@ object GenAssemblerLines {
                 listBuilder += Setw(t2.nr, Right("global_vars"))
                 listBuilder += Stw(t.nr, t2.nr, -locInfo.offset * 4)
                 releaseMIntTemp(t)
+                releaseMIntTemp(t2)
               } else if(operand1.isDefined) {
+                // AssignInstr(MIntProgLoc(RTLocInfo(0,0)),Some(MIntProgLoc(RTLocInfo(0,-1))),None,None)
                 operand1.get match {
                   case MIntProgLoc(info) =>
                     var t,t2 = acquireMIntTemp()
@@ -51,13 +60,12 @@ object GenAssemblerLines {
                     releaseMIntTemp(t2)
                   // t steht wert drinnen
                 }
-
               }
               // lokale Variablen
             } else {
               var t = acquireMIntTemp()
               var t2 = acquireMIntTemp()
-              solveProgLoc(locInfo, t)
+              listBuilder += Addc(t.nr,29,1 + (locInfo.offset - 2) * 4)
               if(operand1.isDefined & op.isEmpty) {
                 operand1.get match {
                   case MIntProgLoc(info) =>
@@ -95,7 +103,6 @@ object GenAssemblerLines {
           case _ => println("ASSIGN MATCH ERROR--------------------------")
 
         }
-        //if(zwischenCode(zwischenCode.indexOf(code) + 1).isInstanceOf[PushMIntInstr]) println("hier kommt den")
 
 
       case WriteInstr(v) =>
@@ -106,7 +113,7 @@ object GenAssemblerLines {
 
       case ReadInstr(v) => println("ReadInstr " + v)
 
-      case AssignAddrInstr(dest, source) => println("AssignAddrInstr " + dest + " " + source)
+      case AssignAddrInstr(dest, source) =>
         var nesting: Int = 0
         var offset: Int = 0
         source match {
@@ -114,6 +121,17 @@ object GenAssemblerLines {
             nesting = rtloc.locInfo.nesting
             offset = rtloc.locInfo.offset
           case MkRef(mIntLoc) =>
+           mIntLoc match {
+             case MIntProgLoc(info) =>
+               dest match{
+                 case TempMAddressLoc(nr) =>
+                   listBuilder += Setw(nr,Right("global_vars"))
+                   listBuilder += Addc(nr,nr,-info.offset*4)
+                   listBuilder += Ldw(nr,nr,0)
+               }
+           }
+
+
         }
         dest match {
           case loc: TempMAddressLoc =>
@@ -137,17 +155,22 @@ object GenAssemblerLines {
 
       case LabeledInstr(label) => listBuilder += Label(label)
 
-      case ProcEntryInstr(label) => listBuilder += Label(label)
+      case ProcEntryInstr(label) =>
+        listBuilder += Label(label)
+        //countParams(code)
+        //zwischenCode.for()
 
-      case CallInstr(callLabel) => listBuilder += Call(30, callLabel)
+
+      case CallInstr(callLabel) =>
+        listBuilder += Call(30, callLabel)
+        paramCounter = 0
 
       case ReturnInstr => listBuilder += Jmpr(30)
 
       case PushMIntInstr(t) =>
         t match{
           case TempMIntLoc(nr) =>
-
-            listBuilder += Setw(nr+1,Left(-procOffset*4+1))
+            listBuilder += Setw(nr+1,Left(procOffset*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
             procOffset += 1
@@ -156,6 +179,13 @@ object GenAssemblerLines {
 
 
       case PushMAddressInstr(a) =>
+        a match{
+          case TempMAddressLoc(nr) =>
+            listBuilder += Setw(nr+1,Left(procOffset*4+1))
+            listBuilder += Add(nr+1,nr+1,31)
+            listBuilder += Stw(nr,nr+1,0)
+            procOffset += 1
+        }
 
       case PushCodeAddrInstr(returnLabel) =>
 
@@ -163,14 +193,18 @@ object GenAssemblerLines {
         listBuilder += Subc(31,31,8)
         listBuilder += Stw(29,31,1)
         listBuilder += Stw(30,31,5)
+        //TODO parameter zählen?
+
 
       case PopMIntInstr =>
 
-      case PopMAddressInstr => listBuilder += Addc(31, 31, 4)
+      case PopMAddressInstr => //listBuilder += Addc(31, 31, 4)
 
       case PopCodeAddrToRRInstr =>
+      listBuilder += Addc(31,31,paramCounter*4)
 
       case PopFPInstr =>
+        //listBuilder += Subc(31,31,procOffset*4)
         listBuilder += Ldw(30, 31, 5)
         listBuilder += Ldw(29, 31, 1)
         listBuilder += Addc(31,31,8)
@@ -183,6 +217,18 @@ object GenAssemblerLines {
         listBuilder += WordDirective(None)
 
       case _ => println("INSTRUKTION ERROR-----------------------")
+    }
+
+    def countParams(instr: IntermediateInstr): Unit ={
+      var counter = zwischenCode.indexOf(instr) + 1
+      while(counter < zwischenCode.length){
+        zwischenCode(counter) match {
+          case PushMAddressInstr(_) | PushMIntInstr(_) => procOffset += 1
+          case CallInstr(_) => return
+          case _=>
+        }
+        counter += 1
+      }
     }
 
     def getRegisterDeRef(addrLoc: MAddressLoc): Int = addrLoc match {
@@ -217,13 +263,8 @@ object GenAssemblerLines {
     }
 
       def solveProgLoc(info: RTLocInfo, t: TempMIntLoc): Unit = {
-        if(info.nesting == 0) {
-          listBuilder += Addc(t.nr, 29, 1 + 4 * (info.offset - 2))
-          listBuilder += Ldw(t.nr, t.nr, 0)
-        } else {
           listBuilder += Addc(t.nr,29,1 + (info.offset - 2) * 4)
           listBuilder += Ldw(t.nr,t.nr,0)
-        }
 
       }
 

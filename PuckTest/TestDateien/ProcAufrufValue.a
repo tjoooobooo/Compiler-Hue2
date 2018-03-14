@@ -4,28 +4,64 @@
 global_vars:
 .word
 .word
+p:
+ADDC $29 $31 0
+ADDC $2 $29 0x1
+LDW $2 $2 0
+ADDC $3 $29 0x5
+LDW $3 $3 0
+STW $3 $2 0
+
+ADDC $1 $29 0x1
+LDW $1 $1 0
+OUTI $1
+
+ADDC $31 $31 0x8
+JMPR $30
 
 q:
 ADDC $29 $31 0
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+SUBC $31 $31 0x8
 
-ADDC $1 $29 0x1  ;Parameter wird aus dem Stack geholt  offset = 1
-LDW $1 $1 0
+SETW $2 global_vars
+LDW $2 $2 0
+SETW $3 0x1
+ADD $3 $3 $31
+STW $2 $3 0
 
-OUTI $1
+SETW $2 global_vars
+ADDC $2 $2 0x4
+SETW $3 0x5
+ADD $3 $3 $31
+STW $2 $3 0
+CALL $30 p
+
+L_1:
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
 JMPR $30
 
 main:
+SETW $3 0x1
+SETW $2 global_vars
+STW $3 $2 0
+
+SETW $2 0x2
+SETW $3 global_vars
+ADDC $3 $3 0x4
+STW $2 $3 0x0
+
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
 
-SETW $1 0x5
-
-SETW $2 0x1            ;PushMadressInsrt macht Parameter in Stack  in diesem Fall die 5
-ADD $2 $2 $31
-STW $1 $2 0
 
 CALL $30 q
+L_2:
 LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8

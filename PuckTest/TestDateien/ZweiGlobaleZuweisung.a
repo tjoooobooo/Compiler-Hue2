@@ -4,19 +4,62 @@
 global_vars:
 .word
 .word
-main:
-SETW $2 0x5
-SETW $3 global_vars
+p:
+ADDC $29 $31 0
+ADDC $2 $29 0x1
+LDW $2 $2 0
+ADDC $3 $29 0x5
+LDW $3 $3 0
+STW $3 $2 0
+
+ADDC $1 $29 0x1
+LDW $1 $1 0
+OUTI $1
+
+JMPR $30
+
+q:
+ADDC $29 $31 0
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+SUBC $31 $31 0x8
+
+SETW $2 global_vars
+LDW $2 $2 0
+;ADDC $2 $2 0x5
+SETW $3 0x1
+ADD $3 $3 $31
 STW $2 $3 0
 
 SETW $2 global_vars
-LDW $2 $2 0x0
+ADDC $2 $2 0x4 ;0x1
+SETW $3 0x5
+ADD $3 $3 $31
+STW $2 $3 0
+CALL $30 p
 
-SETW $1 global_vars
-STW $2 $1 0x4
+L_1:
+;ADDC $31 $31 0x8
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
+JMPR $30
 
-SETW $1 global_vars
-LDW $1 $1 0x4
-OUTI $2
-
+main:
+SETW $3 0x1
+SETW $2 global_vars
+STW $3 $2 0
+SETW $2 0x2
+SETW $3 global_vars
+STW $2 $3 0x4
+SUBC $31 $31 0x8
+STW $29 $31 0x1
+STW $30 $31 0x5
+;SUBC $31 $31 0x8
+CALL $30 q
+L_2:
+LDW $30 $31 0x5
+LDW $29 $31 0x1
+ADDC $31 $31 0x8
 JMPR $30

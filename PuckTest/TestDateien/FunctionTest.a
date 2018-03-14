@@ -18,7 +18,7 @@ proc_FunctionTest_valueparameter:
 ADDC $29 $31 0
 SUBC $31 $31 0
 SETW $2 0x1
-ADD $2 $29 $2 ;2 = offset
+ADD $2 $29 $2
 LDW $2 $2 0
 OUTI $2
 SETB $2 0xA
@@ -145,8 +145,8 @@ STW $1 $2 0
 CALL $30 proc_FunctionTest_refparameter
 LDW $30 $31 0x5
 LDW $29 $31 0x1
-
 ADDC $31 $31 0x8
+
 SETW $2 var_FunctionTest_g
 LDW $2 $2 0
 OUTI $2
