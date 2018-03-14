@@ -1,12 +1,9 @@
 program
 var a,b: int;
-proc p(x: int,y: int)
+proc p(x: int;y: int)
 begin
-    write(x);
-    write(y);
     x:=y;
     write(x);
-    write(y);
 end
 proc q()
 begin

@@ -11,6 +11,7 @@ object GenAssemblerLines {
   def gen(zwischenCode: List[IntermediateInstr]): List[AssemblerLine] = {
     var listBuilder: ListBuffer[AssemblerLine] = new ListBuffer[AssemblerLine]
     var procOffset : Int = 0
+    var procCounter : Option[Int] = None
 
     listBuilder += ObjectDirective("Test")
     listBuilder += ExecutableDirective("main")
@@ -125,8 +126,9 @@ object GenAssemblerLines {
              case MIntProgLoc(info) =>
                dest match{
                  case TempMAddressLoc(nr) =>
+                   if(procCounter.isEmpty) procCounter = Some(-info.offset)
                    listBuilder += Setw(nr,Right("global_vars"))
-                   listBuilder += Addc(nr,nr,-info.offset*4)
+                   listBuilder += Addc(nr,nr,(procCounter.get + info.offset)*4)
                    listBuilder += Ldw(nr,nr,0)
                }
            }

@@ -179,7 +179,7 @@ object ProgParsers extends TokenParsers {
     )
 
   private def procDef: Parser[ProcDef] = positioned {
-    procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, CommaToken(",")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end"))  ^^ {
+    procDefHeader ~ (LeftPToken("(") ~> repsep(paramDef, SemicolonToken(";")) <~ RightPToken(")")) ~ rep(varDef) ~ (KwToken("begin") ~> rep(cmd) <~ KwToken("end"))  ^^ {
       case procsymb ~  paramList ~ vardefs ~ cmds =>
          // leave scope of procedure (scope was entered when parsing the procedure name)
         env.leaveScope()
