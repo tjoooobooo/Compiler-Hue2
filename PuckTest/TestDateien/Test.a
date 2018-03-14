@@ -3,6 +3,11 @@
 .export main
 p:
 ADDC $29 $31 0
+ADDC $2 $29 0x1
+LDW $2 $2 0
+ADDC $3 $29 0x5
+LDW $3 $3 0
+STW $3 $2 0
 ADDC $1 $29 0x1
 LDW $1 $1 0
 OUTI $1
@@ -11,8 +16,12 @@ main:
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
-SETW $2 0x5
+SETW $2 0xA
 SETW $3 0x1
+ADD $3 $3 $31
+STW $2 $3 0
+SETW $2 0x5
+SETW $3 -0x3
 ADD $3 $3 $31
 STW $2 $3 0
 CALL $30 p
