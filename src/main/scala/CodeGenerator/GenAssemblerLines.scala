@@ -11,6 +11,7 @@ object GenAssemblerLines {
   def gen(zwischenCode: List[IntermediateInstr]): List[AssemblerLine] = {
     var listBuilder: ListBuffer[AssemblerLine] = new ListBuffer[AssemblerLine]
     var procOffset : Int = 0
+    var procTillCall : Int = 0
     var procCounter : Option[Int] = None
 
     listBuilder += ObjectDirective("Test")
@@ -126,10 +127,15 @@ object GenAssemblerLines {
              case MIntProgLoc(info) =>
                dest match{
                  case TempMAddressLoc(nr) =>
-                   if(procCounter.isEmpty) procCounter = Some(-info.offset)
-                   listBuilder += Setw(nr,Right("global_vars"))
-                   listBuilder += Addc(nr,nr,(procCounter.get + info.offset)*4)
-                   listBuilder += Ldw(nr,nr,0)
+                   if(info.nesting == 0) {
+                     if (procCounter.isEmpty) procCounter = Some(-info.offset)
+                     listBuilder += Setw(nr, Right("global_vars"))
+                     listBuilder += Addc(nr, nr, (procCounter.get + info.offset) * 4)
+                     listBuilder += Ldw(nr, nr, 0)
+                   } else {
+                     listBuilder += Addc(nr,29,procTillCall*4+1)
+                     listBuilder += Ldw(nr,nr,0)
+                   }
                }
            }
 
@@ -165,16 +171,18 @@ object GenAssemblerLines {
 
       case CallInstr(callLabel) =>
         listBuilder += Call(30, callLabel)
+        procTillCall = 0
 
       case ReturnInstr => listBuilder += Jmpr(30)
 
       case PushMIntInstr(t) =>
         t match{
           case TempMIntLoc(nr) =>
-            listBuilder += Setw(nr+1,Left(procOffset*4+1))
+            listBuilder += Setw(nr+1,Left(procTillCall*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
             procOffset += 1
+            procTillCall += 1
         }
 
 
@@ -182,10 +190,11 @@ object GenAssemblerLines {
       case PushMAddressInstr(a) =>
         a match{
           case TempMAddressLoc(nr) =>
-            listBuilder += Setw(nr+1,Left(procOffset*4+1))
+            listBuilder += Setw(nr+1,Left(procTillCall*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
             procOffset += 1
+            procTillCall += 1
         }
 
       case PushCodeAddrInstr(returnLabel) =>

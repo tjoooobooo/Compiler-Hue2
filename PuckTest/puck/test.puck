@@ -1,27 +1,16 @@
 program
 var a,b: int;
-proc test2(f: int)
+proc test(y: int)
 begin
-    write(f);
+    write(y);
 end
-proc test(funk: int)
+proc p(x: int)
 begin
-    write(3);
-    write(a);
-end
-proc p(x: int;y: int)
-begin
-    x:=y;
     write(x);
-    test(b);
+    test(x);
 end
-proc q()
-begin
-    p(a,b);
-end
+
 init
-   a := 10;
-   b := 2;
-   q();
-   test2(7);
+   p(10);
+   p(20);
 end
