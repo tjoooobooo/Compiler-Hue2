@@ -4,14 +4,12 @@ InitializationDirective(init)
 Label(global_vars)
 WordDirective(None)
 WordDirective(None)
-
 Label(p)
 Addc(29,31,0)
 Addc(1,29,1)
 Addc(2,29,5)
 Ldw(2,2,0)
 Stw(2,1,0)
-
 Addc(31,31,8)
 Jmpr(30)
 
@@ -20,7 +18,6 @@ Addc(29,31,0)
 Subc(31,31,8)
 Stw(29,31,1)
 Stw(30,31,5)
-
 Subc(31,31,8)
 
 Setw(1,Right(global_vars))
@@ -28,7 +25,6 @@ Ldw(1,1,0)
 Setw(2,Left(1))
 Add(2,2,31)
 Stw(1,2,0)
-
 Setw(1,Right(global_vars))
 Addc(1,1,4)
 Ldw(1,1,0)
@@ -36,7 +32,6 @@ Setw(2,Left(5))
 Add(2,2,31)
 Stw(1,2,0)
 Call(30,p)
-
 Ldw(30,31,5)
 Ldw(29,31,1)
 Addc(31,31,8)
@@ -44,19 +39,15 @@ Jmpr(30)
 
 Label(init)
 Setw(1,Right(global_vars))
-Setw(2,Left(2)) ZUWEISUNG
+Setw(2,Left(2))
 Stw(2,1,0)
-
 Setw(1,Right(global_vars))
 Addc(1,1,4)
-Setw(2,Left(4)) ZUWEISUNG
+Setw(2,Left(4))
 Stw(2,1,0)
-
-
 Subc(31,31,8)
 Stw(29,31,1)
 Stw(30,31,5)
-
 Call(30,q)
 Ldw(30,31,5)
 Ldw(29,31,1)

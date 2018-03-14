@@ -64,7 +64,8 @@ object GenAssemblerLines {
                 }
               }
               // lokale Variablen
-            } else {
+            } else if (locInfo.offset > 1)
+            {
               var t = acquireMIntTemp()
               var t2 = acquireMIntTemp()
               listBuilder += Addc(t.nr,29,1 + (locInfo.offset - 2) * 4)
@@ -86,6 +87,16 @@ object GenAssemblerLines {
               releaseMIntTemp(t)
               releaseMIntTemp(t2)
 
+            } else {
+              var t,t2 = acquireMIntTemp()
+                dest match {
+                  case MIntProgLoc(info) =>
+                    listBuilder += Setw(t.nr, Left(-3))
+                    listBuilder += Add(t.nr, 29, t.nr)
+                    listBuilder += Setw(t2.nr, Left(getValue(operand2)))
+                    listBuilder += Stw(t2.nr, t.nr, 0)
+                }
+
             }
           case TempMIntLoc(nr) =>
             operand1 match {
@@ -93,9 +104,14 @@ object GenAssemblerLines {
                 if(locInfo.nesting == 0){
                   listBuilder += Setw(nr, Right("global_vars"))
                   listBuilder += Ldw(nr, nr, -locInfo.offset * 4)
-                } else {
+                } else if (locInfo.offset > 1) {
                   solveProgLoc(locInfo,TempMIntLoc(nr))
+                } else {
+                  listBuilder += Setw(nr,Left(-3))
+                  listBuilder += Add(nr,29,nr)
+                  listBuilder += Ldw(nr, nr, 0)
                 }
+
 
 
               case None => listBuilder += Setw(nr, Left(getValue(operand2)))
@@ -183,6 +199,8 @@ object GenAssemblerLines {
             listBuilder += Stw(nr,nr+1,0)
             procOffset += 1
             procTillCall += 1
+          case MIntImmediateValue(nr) =>
+
         }
 
 

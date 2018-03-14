@@ -20,6 +20,7 @@ SUBC $31 $31 0
 SETW $2 0x1
 ADD $2 $29 $2
 LDW $2 $2 0
+
 OUTI $2
 SETB $2 0xA
 OUTC $2
@@ -48,16 +49,22 @@ JMPR $30
 .executable local
 .export local
 local:
+
 ADDC $29 $31 0
 SUBC $31 $31 0x4
+
 SETW $1 -0x3
 ADD $1 $29 $1
 SETW $2 0x2A
 STW $2 $1 0
+
 SETW $2 -0x3
 ADD $2 $29 $2
+
+
 LDW $2 $2 0
 OUTI $2
+
 SETB $2 0xA
 OUTC $2
 ADDC $31 $31 0x4
@@ -121,6 +128,7 @@ ADDC $31 $31 0x8
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
+
 SUBC $31 $31 0x4
 SETW $1 0x7
 SETW $2 0x1
@@ -152,6 +160,7 @@ LDW $2 $2 0
 OUTI $2
 SETB $2 0xA
 OUTC $2
+
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
@@ -160,9 +169,12 @@ CALL $30 local
 LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8
+
+
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
+
 SUBC $31 $31 0x4
 SETW $1 0x2B
 SETW $2 0x1
@@ -177,9 +189,11 @@ SETW $1 -0x3
 ADD $1 $29 $1
 SETW $2 0x2C
 STW $2 $1 0
+
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
+
 SUBC $31 $31 0x4
 SETW $1 -0x3
 ADD $1 $29 $1

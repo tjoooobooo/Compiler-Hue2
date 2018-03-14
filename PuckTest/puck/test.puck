@@ -1,16 +1,14 @@
 program
 var a,b: int;
-proc test(y: int)
+proc p()
+var y,z: int;
 begin
+    y := 10;
+    z := 12;
     write(y);
-end
-proc p(x: int)
-begin
-    write(x);
-    test(x);
+    write(z);
 end
 
 init
-   p(10);
-   p(20);
+   p();
 end

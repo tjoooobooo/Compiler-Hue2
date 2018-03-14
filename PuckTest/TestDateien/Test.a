@@ -4,58 +4,33 @@
 global_vars:
 .word 
 .word 
-test:
-ADDC $29 $31 0
-ADDC $1 $29 0x1
-LDW $1 $1 0
-OUTI $1
-ADDC $31 $31 0xC
-JMPR $30
 p:
 ADDC $29 $31 0
-ADDC $2 $29 0x1
+SETW $3 -0x3
+ADD $3 $29 $3
+SETW $4 0xA
+STW $4 $3 0
+SETW $5 -0x3
+ADD $5 $29 $5
+SETW $6 0xC
+STW $6 $5 0
+SETW $1 -0x3
+ADD $1 $29 $1
+LDW $1 $1 0
+OUTI $1
+SETW $2 -0x3
+ADD $2 $29 $2
 LDW $2 $2 0
 OUTI $2
-SUBC $31 $31 0x8
-STW $29 $31 0x1
-STW $30 $31 0x5
-SUBC $31 $31 0xC
-ADDC $3 $29 0x1
-LDW $3 $3 0
-SETW $4 0x1
-ADD $4 $4 $31
-STW $3 $4 0
-CALL $30 test
-L_1:
-LDW $30 $31 0x5
-LDW $29 $31 0x1
 ADDC $31 $31 0x8
-ADDC $31 $31 0xC
 JMPR $30
 main:
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
-SUBC $31 $31 0xC
-SETW $3 0xA
-SETW $4 0x1
-ADD $4 $4 $31
-STW $3 $4 0
-CALL $30 p
-L_2:
-LDW $30 $31 0x5
-LDW $29 $31 0x1
-ADDC $31 $31 0x8
 SUBC $31 $31 0x8
-STW $29 $31 0x1
-STW $30 $31 0x5
-SUBC $31 $31 0xC
-SETW $3 0x14
-SETW $4 0x1
-ADD $4 $4 $31
-STW $3 $4 0
 CALL $30 p
-L_3:
+L_1:
 LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8
