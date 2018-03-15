@@ -16,9 +16,9 @@ object ContextAnalysis {
     for(cmd <- obj.cmds) resCommands += transformCmd(cmd)
 
     def transformCmd(cmdsVal: Cmd): Cmd = cmdsVal match {
-      case Call(symb,args) =>
+      case call@Call(symb,args) =>
         if(symb.params.head.lengthCompare(args.size) != 0)
-          throw new IllegalArgumentException("False number of Parameters in Call " + symb.name + "()")
+          throw new IllegalArgumentException("False number of Parameters in Call " + symb.name + s"() at ${call.pos}")
         var res : ListBuffer[Arg] = new ListBuffer[Arg]()
         for(arg <- args.indices) args(arg).exp match {
           case LocAccess(f) =>
@@ -39,10 +39,10 @@ object ContextAnalysis {
             }
         }
         Call(symb, res.toList)
-      case Assign(left,right) =>
+      case assign@Assign(left,right) =>
       left match {
         case DirectLoc(symb) =>
-          if(symb.isInstanceOf[ValParamSymbol]) throw new IllegalArgumentException("Reassignment to val " + symb.name)
+          if(symb.isInstanceOf[ValParamSymbol]) throw new IllegalArgumentException("Reassignment to val "+ symb.name +s" at ${assign.pos}")
           else Assign(left,right)
         case _ => Assign(left,right)
         }

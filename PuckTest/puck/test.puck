@@ -1,8 +1,8 @@
 object Test
 var a,b: int;
 proc test(t: int)
-var t: int;
 begin
+    t:= 2;
     write(a);
 end
 init

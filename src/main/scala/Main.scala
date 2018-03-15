@@ -17,7 +17,6 @@ object Main {
     if(parsed.isSuccess) {
       var analysed = Try(ContextAnalysis.checkContext(parsed.get))
       if(analysed.isSuccess){
-        println(analysed)
         var zwischenCode = ZwischenCode.ZwischenCodeGenerator.translate(analysed.get)
         var assembler = CodeGenerator.GenAssemblerLines.gen(zwischenCode)
         new PrintWriter("PuckTest//TestDateien//Test.a") {
