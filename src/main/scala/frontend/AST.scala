@@ -103,8 +103,8 @@ object AST {
   // Objects
   case class Obj(
                   name: String,
-                  imports: List[(String, ProgSymbol)],  // imported Symbols: object name and symbol from that object
-                  exports: List[String],      // Names of symbols that have to be exported after context analysis
+                  imports: Option[List[(String, ProgSymbol)]],  // imported Symbols: object name and symbol from that object
+                  exports: Option[List[String]],      // Names of symbols that have to be exported after context analysis
                   defs: List[Definition],
                   cmds: List[Cmd])
 }

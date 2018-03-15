@@ -322,25 +322,26 @@ object ZwischenCodeGenerator {
         }
     }
 
-  def translate(prog: Prog): List[IntermediateInstr] = {
+  def translate(obj: Obj): List[IntermediateInstr] = {
+    codeBuf += ObjectInstr(obj.name)
     var globalList : ListBuffer[VarSymbol] = new ListBuffer[VarSymbol]
-    prog.defList foreach{
+    obj.defs foreach{
       case varDef@VarDef(symb,t,e) => globalList += symb
       case _ =>
     }
     RuntimeOrganisation.topLevelLayout(globalList.toList)
-    prog.defList foreach{
+    obj.defs foreach{
       case varDef@VarDef(_,_,_) => genCodeGlobVarDef(varDef)
       case _ =>
     }
-    prog.defList foreach{
+    obj.defs foreach{
       case procDef@ProcDef(_, _, _, _) => genCodeProc(procDef)
       case _ =>
     }
 
 
     codeBuf += ProcEntryInstr("main")
-    prog.cmdList.foreach{genCodeCmd}
+    obj.cmds.foreach{genCodeCmd}
 
 
     codeBuf.toList

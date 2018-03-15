@@ -189,6 +189,8 @@ package ZwischenCode
     // allocate static storage with size storage cells
     case class AllocStaticInstr(size: Int)  extends IntermediateInstr
 
+    case class ObjectInstr(name: String) extends IntermediateInstr
+
 
 
     // -------------------------------------------------------------------------------------------------------------------

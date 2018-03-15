@@ -14,9 +14,6 @@ object GenAssemblerLines {
     var procTillCall : Int = 0
     var procCounter : Option[Int] = None
 
-    listBuilder += ObjectDirective("Test")
-    listBuilder += ExecutableDirective("main")
-    listBuilder += ExportDirective("main")
 
     zwischenCode foreach println
     println("-----------------------------------")
@@ -25,8 +22,11 @@ object GenAssemblerLines {
   for(code <- zwischenCode) code match {
     case PushMIntInstr(_)|
     PushMAddressInstr(_) => paramCounter += 1
+    case ObjectInstr(name) => listBuilder += ObjectDirective(name)
     case _ =>
   }
+    listBuilder += ExecutableDirective("main")
+    listBuilder += ExportDirective("main")
 
     var hasGlobalVars: Boolean = false
     for(code <- zwischenCode) code match {
@@ -34,45 +34,51 @@ object GenAssemblerLines {
       case AssignInstr(dest, operand1, op, operand2) =>
 
         dest match {
-          case MIntProgLoc(locInfo) =>
-            // GLOBALE VARIABLEN zuweisungen
-            if (locInfo.nesting == 0) {
+          case MIntProgLoc(infoDest) =>
+            // GLOBALE VARIABLEN zuweisungen---------------------------------------------------------------------------
+            if (infoDest.nesting == 0) {
               if (operand1.isDefined & operand2.isDefined) {
                 solveAssignExp(operand1, op, operand2)
-                listBuilder += Setw(getValue(operand2), Right("global_vars"))
-                listBuilder += Stw(getValue(operand1), getValue(operand2), -locInfo.offset * 4)
+                setGlobal(infoDest,getValue(operand1),getValue(operand2))
               } else if(operand2.isDefined) {
                 // AssignInstr(MIntProgLoc(RTLocInfo(0,0)),None,None,Some(MIntImmediateValue(5)))
                 var t, t2 = acquireMIntTemp()
                 listBuilder += Setw(t.nr, Left(getValue(operand2)))
-                listBuilder += Setw(t2.nr, Right("global_vars"))
-                listBuilder += Stw(t.nr, t2.nr, -locInfo.offset * 4)
+                setGlobal(infoDest,t.nr,t2.nr)
                 releaseMIntTemp(t)
                 releaseMIntTemp(t2)
               } else if(operand1.isDefined) {
                 // AssignInstr(MIntProgLoc(RTLocInfo(0,0)),Some(MIntProgLoc(RTLocInfo(0,-1))),None,None)
                 operand1.get match {
-                  case MIntProgLoc(info) =>
+                  case MIntProgLoc(infoOp) =>
                     var t,t2 = acquireMIntTemp()
-                    listBuilder += Setw(t.nr, Right("global_vars"))
-                    listBuilder += Ldw(t.nr,t.nr,-locInfo.offset * 4)
-                    listBuilder += Setw(t2.nr, Right("global_vars"))
-                    listBuilder += Stw(t.nr, t2.nr, -info.offset * 4)
+                      if(infoOp.nesting == 0) {
+                        //global = global
+                        getGlobalValue(infoOp, t)
+                        setGlobal(infoDest, t.nr, t2.nr)
+                      } else if(infoOp.offset > 1) {
+                        //global = parameter
+                        getParameterValue(infoOp,t)
+                        setGlobal(infoDest,t.nr,t2.nr)
+                      }else {
+                        // global = lokal
+                        getLocalValue(infoDest,t)
+                        setGlobal(infoOp,t.nr,t2.nr)
+                      }
                     releaseMIntTemp(t)
                     releaseMIntTemp(t2)
-                  // t steht wert drinnen
                 }
               }
+              //--------------------------------------------------------------------------------------------------------
               // lokale Variablen
-            } else if (locInfo.offset > 1)
-            {
+            } else if (infoDest.offset > 1) {
               var t = acquireMIntTemp()
               var t2 = acquireMIntTemp()
-              listBuilder += Addc(t.nr,29,1 + (locInfo.offset - 2) * 4)
+              listBuilder += Addc(t.nr,29,1 + (infoDest.offset - 2) * 4)
               if(operand1.isDefined & op.isEmpty) {
                 operand1.get match {
                   case MIntProgLoc(info) =>
-                    solveProgLoc(info,t2)
+                    getParameterValue(info,t2)
                 }
                 listBuilder += Stw(t2.nr,t.nr,0)
               } else if(operand2.isDefined & op.isEmpty){
@@ -88,32 +94,49 @@ object GenAssemblerLines {
               releaseMIntTemp(t2)
 
             } else {
-              var t,t2 = acquireMIntTemp()
-                dest match {
-                  case MIntProgLoc(info) =>
-                    listBuilder += Setw(t.nr, Left(-3))
-                    listBuilder += Add(t.nr, 29, t.nr)
-                    listBuilder += Setw(t2.nr, Left(getValue(operand2)))
-                    listBuilder += Stw(t2.nr, t.nr, 0)
+              if(operand1.isDefined & op.isDefined) {
+                solveAssignExp(operand1,op,operand2)
+                setLocal(infoDest,TempMIntLoc(getValue(operand1)),TempMIntLoc(getValue(operand2)))
+              } else if(operand1.isDefined) {
+                var t,t2 = acquireMIntTemp()
+                operand1.get match {
+                  case MIntProgLoc(infoOp) =>
+                    if(infoOp.offset > 1){
+                      //lokal = parameter
+                      getParameterValue(infoOp,t)
+                      setLocal(infoDest,t,t2)
+                    } else if(infoOp.nesting == 0) {
+                      //lokal = global
+                      getGlobalValue(infoOp,t)
+                      setLocal(infoDest,t,t2)
+                    } else {
+                      // lokal = lokal
+                      getLocalValue(infoOp,t)
+                      setLocal(infoDest,t,t2)
+                    }
                 }
-
+                releaseMIntTemp(t)
+                releaseMIntTemp(t2)
+              } else {
+                var t,t2 = acquireMIntTemp()
+                listBuilder += Setw(t.nr, Left(infoDest.offset*4-3))
+                listBuilder += Add(t.nr, 29, t.nr)
+                listBuilder += Setw(t2.nr, Left(getValue(operand2)))
+                listBuilder += Stw(t2.nr, t.nr, 0)
+                releaseMIntTemp(t)
+                releaseMIntTemp(t2)
+              }
             }
           case TempMIntLoc(nr) =>
             operand1 match {
               case Some(MIntProgLoc(locInfo)) =>
                 if(locInfo.nesting == 0){
-                  listBuilder += Setw(nr, Right("global_vars"))
-                  listBuilder += Ldw(nr, nr, -locInfo.offset * 4)
+                  getGlobalValue(locInfo,TempMIntLoc(nr))
                 } else if (locInfo.offset > 1) {
-                  solveProgLoc(locInfo,TempMIntLoc(nr))
+                  getParameterValue(locInfo,TempMIntLoc(nr))
                 } else {
-                  listBuilder += Setw(nr,Left(-3))
-                  listBuilder += Add(nr,29,nr)
-                  listBuilder += Ldw(nr, nr, 0)
+                  getLocalValue(locInfo,TempMIntLoc(nr))
                 }
-
-
-
               case None => listBuilder += Setw(nr, Left(getValue(operand2)))
             }
 
@@ -129,7 +152,11 @@ object GenAssemblerLines {
           case MIntProgLoc(locInfo) =>
         }
 
-      case ReadInstr(v) => println("ReadInstr " + v)
+      case ReadInstr(v) =>
+        v match{
+          case TempMIntLoc(nr) => listBuilder += Ini(nr)
+        }
+
 
       case AssignAddrInstr(dest, source) =>
         var nesting: Int = 0
@@ -148,13 +175,14 @@ object GenAssemblerLines {
                      listBuilder += Setw(nr, Right("global_vars"))
                      listBuilder += Addc(nr, nr, (procCounter.get + info.offset) * 4)
                      listBuilder += Ldw(nr, nr, 0)
+                   } else if(info.offset < 1){
+                     getLocalValue(info,TempMIntLoc(nr))
                    } else {
                      listBuilder += Addc(nr,29,procTillCall*4+1)
                      listBuilder += Ldw(nr,nr,0)
                    }
                }
            }
-
 
         }
         dest match {
@@ -182,8 +210,6 @@ object GenAssemblerLines {
       case ProcEntryInstr(label) =>
         listBuilder += Label(label)
         //countParams(code)
-        //zwischenCode.for()
-
 
       case CallInstr(callLabel) =>
         listBuilder += Call(30, callLabel)
@@ -199,10 +225,9 @@ object GenAssemblerLines {
             listBuilder += Stw(nr,nr+1,0)
             procOffset += 1
             procTillCall += 1
-          case MIntImmediateValue(nr) =>
-
+          case MIntImmediateValue(nr) => // 0 TODO
+            paramCounter -= 1
         }
-
 
 
       case PushMAddressInstr(a) =>
@@ -245,19 +270,33 @@ object GenAssemblerLines {
         hasGlobalVars = true
         listBuilder += WordDirective(None)
 
-      case _ => println("INSTRUKTION ERROR-----------------------")
+      case _ =>
     }
 
-    def countParams(instr: IntermediateInstr): Unit ={
-      var counter = zwischenCode.indexOf(instr) + 1
-      while(counter < zwischenCode.length){
-        zwischenCode(counter) match {
-          case PushMAddressInstr(_) | PushMIntInstr(_) => procOffset += 1
-          case CallInstr(_) => return
-          case _=>
-        }
-        counter += 1
-      }
+    def getGlobalValue(info: RTLocInfo,t: TempMIntLoc): Unit = {
+      listBuilder += Setw(t.nr, Right("global_vars"))
+      listBuilder += Ldw(t.nr,t.nr,-info.offset * 4)
+    }
+    def setGlobal(info: RTLocInfo,t: Int,t2: Int): Unit = {
+      listBuilder += Setw(t2, Right("global_vars"))
+      listBuilder += Addc(t2,t2,-info.offset * 4)
+      listBuilder += Stw(t,t2,0)
+    }
+    def getLocalValue(info: RTLocInfo,t:TempMIntLoc): Unit = {
+      listBuilder += Setw(t.nr,Left(info.offset*4-3))
+      listBuilder += Add(t.nr,29,t.nr)
+      listBuilder += Ldw(t.nr, t.nr, 0)
+    }
+
+    def setLocal(info: RTLocInfo,t: TempMIntLoc, t2: TempMIntLoc): Unit = {
+      listBuilder += Setw(t2.nr, Left(info.offset*4-3))
+      listBuilder += Add(t2.nr, 29, t2.nr)
+      listBuilder += Stw(t.nr, t2.nr, 0)
+    }
+
+    def getParameterValue(info: RTLocInfo,t: TempMIntLoc): Unit = {
+      listBuilder += Addc(t.nr,29,1 + (info.offset - 2) * 4)
+      listBuilder += Ldw(t.nr,t.nr,0)
     }
 
     def getRegisterDeRef(addrLoc: MAddressLoc): Int = addrLoc match {
@@ -290,12 +329,6 @@ object GenAssemblerLines {
         })
       }
     }
-
-      def solveProgLoc(info: RTLocInfo, t: TempMIntLoc): Unit = {
-          listBuilder += Addc(t.nr,29,1 + (info.offset - 2) * 4)
-          listBuilder += Ldw(t.nr,t.nr,0)
-
-      }
 
       def solveBoolExp(value: MIntLocOrValue, op: MRelOp, value2: MIntLocOrValue): Unit = {
         listBuilder += (op match {

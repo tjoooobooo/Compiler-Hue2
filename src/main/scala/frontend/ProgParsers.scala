@@ -127,15 +127,18 @@ object ProgParsers extends TokenParsers {
       { case symb: ProcSymbol => symb },
       name => s"Name '$name' is not a procedure"
     )
-
+  var objectName: String = ""
   // parse programs ----------------------------------------------------------------------------------------------------
-  def prog: Parser[Prog] =
-    progStart ~> body ^^ { case (defList, cmdList) => Prog(defList, cmdList) }
+  def obj: Parser[Obj] =
+    objStart ~> body ^^ { case (defList, cmdList) => Obj(objectName,None,None,defList, cmdList) }
 
   // enter scope when keyword PROGRAM appears
   // TODO PROGRAM am Anfang?
-  def progStart: Parser[Any] =
-    KwToken("program") ^^ { x => env.enterScope(); x }
+  def objStart: Parser[Any] =
+    KwToken("object") ~> ident ^^ { x =>
+      env.enterScope()
+      objectName = x.toString
+    }
 
   // leave scope after parsing the body
   def body: Parser[(List[Definition], List[Cmd])] =
@@ -329,12 +332,12 @@ object ProgParsers extends TokenParsers {
 
 */
 
-  def parse(str: String): Prog = {
+  def parse(str: String): Obj = {
 
     // remove trailing whitespaces before passing the input to the scanner
     val lexer: Reader[lexical.Token] = new lexical.Scanner(str.trim.stripSuffix(lexical.whitespacePattern))
 
-    phrase(prog)(lexer) match { // phrase tries to analyse the whole text (the "phrase")
+    phrase(obj)(lexer) match { // phrase tries to analyse the whole text (the "phrase")
       case Success(tree,_)       => tree
       case error@NoSuccess(_,_)  => println(error)
         throw new IllegalArgumentException("Parser Error")
