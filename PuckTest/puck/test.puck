@@ -1,9 +1,14 @@
 object Test
 var a,b: int;
-proc test(t: int)
+proc p(x: int)
 begin
-    t:= 2;
-    write(a);
+write(x);
+end
+proc test(t: int)
+var lok: int;
+begin
+    lok := 2;
+    p(lok);
 end
 init
     a := 10;

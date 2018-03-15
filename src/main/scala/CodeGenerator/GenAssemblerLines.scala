@@ -10,12 +10,11 @@ object GenAssemblerLines {
 
   def gen(zwischenCode: List[IntermediateInstr]): List[AssemblerLine] = {
     var listBuilder: ListBuffer[AssemblerLine] = new ListBuffer[AssemblerLine]
-    var procOffset : Int = 0
     var procTillCall : Int = 0
     var procCounter : Option[Int] = None
 
 
-    //zwischenCode foreach println
+    zwischenCode foreach println
     //println("-----------------------------------")
 
   var paramCounter = 0
@@ -219,22 +218,23 @@ object GenAssemblerLines {
       case PushMIntInstr(t) =>
         t match{
           case TempMIntLoc(nr) =>
+            listBuilder += Subc(31,31,4)
             listBuilder += Setw(nr+1,Left(procTillCall*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
-            procOffset += 1
             procTillCall += 1
-          case MIntImmediateValue(nr) => // 0 TODO
+          case MIntImmediateValue(nr) => listBuilder += Subc(31,31,4)
+          // 0 TODO
         }
 
 
       case PushMAddressInstr(a) =>
         a match{
           case TempMAddressLoc(nr) =>
+            listBuilder += Subc(31,31,4)
             listBuilder += Setw(nr+1,Left(procTillCall*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
-            procOffset += 1
             procTillCall += 1
         }
 
@@ -245,18 +245,16 @@ object GenAssemblerLines {
         listBuilder += Stw(29,31,1)
         listBuilder += Stw(30,31,5)
         //TODO parameter zählen?
-        listBuilder += Subc(31,31,paramCounter*4)
 
 
-      case PopMIntInstr =>
+      case PopMIntInstr => listBuilder += Addc(31,31,4)
 
-      case PopMAddressInstr => //listBuilder += Addc(31, 31, 4)
+      case PopMAddressInstr => listBuilder += Addc(31, 31, 4) //TODO
 
       case PopCodeAddrToRRInstr =>
-      listBuilder += Addc(31,31,paramCounter*4)
+      //listBuilder += Addc(31,31,paramCounter*4)
 
       case PopFPInstr =>
-        //listBuilder += Subc(31,31,procOffset*4)
         listBuilder += Ldw(30, 31, 5)
         listBuilder += Ldw(29, 31, 1)
         listBuilder += Addc(31,31,8)

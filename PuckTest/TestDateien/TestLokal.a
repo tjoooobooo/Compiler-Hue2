@@ -2,14 +2,18 @@
 .executable main
 .export main
 global_vars:
-.word 
-.word 
+.word
+.word
 p:
 ADDC $29 $31 0
+
 ADDC $1 $29 0x1
 LDW $1 $1 0
 OUTI $1
+
 JMPR $30
+
+
 test:
 ADDC $29 $31 0
 SUBC $31 $31 0x4
@@ -20,10 +24,11 @@ STW $3 $2 0
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
+
+SUBC $31 $31 0x4
 SETW $2 -0x3
 ADD $2 $29 $2
 LDW $2 $2 0
-SUBC $31 $31 0x4
 SETW $3 0x1
 ADD $3 $3 $31
 STW $2 $3 0
@@ -34,7 +39,11 @@ LDW $30 $31 0x5
 LDW $29 $31 0x1
 ADDC $31 $31 0x8
 ADDC $31 $31 0x4
+
+
+
 JMPR $30
+
 main:
 SETW $3 0xA
 SETW $2 global_vars
@@ -43,8 +52,9 @@ STW $3 $2 0
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
-SETW $2 0x5
+
 SUBC $31 $31 0x4
+SETW $2 0x5
 SETW $3 0x1
 ADD $3 $3 $31
 STW $2 $3 0
