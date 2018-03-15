@@ -1,19 +1,11 @@
 object Test
 var a,b: int;
-proc q(tmp: int)
+proc test(t: int)
+var t: int;
 begin
-write(tmp);
+    write(a);
 end
-proc p(amk: int)
-var y,z: int;
-begin
-    y := 2;
-    z := amk + 5;
-    write(z);
-    q(z);
-end
-
 init
-    a := 30;
-    p(100);
+    a := 10;
+    test(5);
 end

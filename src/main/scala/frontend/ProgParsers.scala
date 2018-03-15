@@ -266,16 +266,9 @@ object ProgParsers extends TokenParsers {
           Assign(ref, e)
       }| definedProc ~ (LeftPToken("(") ~> repsep(arithExp, CommaToken(",")) <~ RightPToken(")")) <~ SemicolonToken(";") ^^ {
         case ps ~ args =>
-          if(ps.params.head.lengthCompare(args.size) != 0)
-            throw new IllegalArgumentException("Falsche Anzahl von Parametern im Aufruf der Procedure " + ps.name + "()!")
-          var res : ListBuffer[Arg] = new ListBuffer[Arg]()
-          for(arg <- args) arg match {
-              //TODO REF byRef nicht alle Variablen
-            case LocAccess(f) => res += Arg(arg,Some(ByRef))
-            case Number(f) => res += Arg(arg, Some(ByValue))
-          }
+
           // args.map(Arg(_, None))
-          Call(ps, res.toList)
+          Call(ps, args.map(Arg(_, None)))
       }
   }
   // parse objects -----------------------------------------------------------------------------------------------------
@@ -339,7 +332,8 @@ object ProgParsers extends TokenParsers {
 
     phrase(obj)(lexer) match { // phrase tries to analyse the whole text (the "phrase")
       case Success(tree,_)       => tree
-      case error@NoSuccess(_,_)  => println(error)
+      case error@NoSuccess(_,_)  =>
+        println(error)
         throw new IllegalArgumentException("Parser Error")
     }
 

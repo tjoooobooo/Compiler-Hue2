@@ -15,13 +15,13 @@ object GenAssemblerLines {
     var procCounter : Option[Int] = None
 
 
-    zwischenCode foreach println
-    println("-----------------------------------")
+    //zwischenCode foreach println
+    //println("-----------------------------------")
 
   var paramCounter = 0
   for(code <- zwischenCode) code match {
-    case PushMIntInstr(_)|
-    PushMAddressInstr(_) => paramCounter += 1
+    case PushMIntInstr(a) => if(!a.isInstanceOf[MIntImmediateValue]) paramCounter += 1
+    case PushMAddressInstr(_) => paramCounter += 1
     case ObjectInstr(name) => listBuilder += ObjectDirective(name)
     case _ =>
   }
@@ -30,7 +30,6 @@ object GenAssemblerLines {
 
     var hasGlobalVars: Boolean = false
     for(code <- zwischenCode) code match {
-
       case AssignInstr(dest, operand1, op, operand2) =>
 
         dest match {
@@ -226,7 +225,6 @@ object GenAssemblerLines {
             procOffset += 1
             procTillCall += 1
           case MIntImmediateValue(nr) => // 0 TODO
-            paramCounter -= 1
         }
 
 
