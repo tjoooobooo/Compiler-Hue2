@@ -31,8 +31,10 @@ JMPR $30
 proc_FunctionTest_refparameter:
 ADDC $29 $31 0
 SUBC $31 $31 0
+
 SETW $2 0x1
 ADD $2 $29 $2
+;2 mal LDW
 LDW $2 $2 0
 LDW $2 $2 0
 OUTI $2
@@ -142,9 +144,11 @@ ADDC $31 $31 0x8
 SETW $1 var_FunctionTest_g
 SETW $2 0x11
 STW $2 $1 0
+; g = 17
 SUBC $31 $31 0x8
 STW $29 $31 0x1
 STW $30 $31 0x5
+; PUSHFP
 SUBC $31 $31 0x4
 SETW $1 var_FunctionTest_g
 SETW $2 0x1

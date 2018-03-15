@@ -42,8 +42,9 @@ object ContextAnalysis {
       case assign@Assign(left,right) =>
       left match {
         case DirectLoc(symb) =>
-          if(symb.isInstanceOf[ValParamSymbol]) throw new IllegalArgumentException("Reassignment to val "+ symb.name +s" at ${assign.pos}")
-          else Assign(left,right)
+          //if(symb.isInstanceOf[ValParamSymbol]) // TODO ref = x?
+          // throw new IllegalArgumentException("Reassignment to val "+ symb.name +s" at ${assign.pos}")
+          Assign(left,right)
         case _ => Assign(left,right)
         }
       case While(e,cmds) => While(e,cmds)

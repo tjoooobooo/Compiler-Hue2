@@ -12,6 +12,7 @@ object GenAssemblerLines {
     var listBuilder: ListBuffer[AssemblerLine] = new ListBuffer[AssemblerLine]
     var procTillCall : Int = 0
     var procCounter : Option[Int] = None
+    var tempMAddressLoc: Int = 0
 
 
     zwischenCode foreach println
@@ -68,10 +69,9 @@ object GenAssemblerLines {
                 }
               }
               //--------------------------------------------------------------------------------------------------------
-              // lokale Variablen
+              // lokale Variablen paaraameter
             } else if (infoDest.offset > 1) {
-              var t = acquireMIntTemp()
-              var t2 = acquireMIntTemp()
+              var t,t2 = acquireMIntTemp()
               listBuilder += Addc(t.nr,29,1 + (infoDest.offset - 2) * 4)
               if(operand1.isDefined & op.isEmpty) {
                 operand1.get match {
@@ -112,6 +112,8 @@ object GenAssemblerLines {
                       getLocalValue(infoOp,t)
                       setLocal(infoDest,t,t2)
                     }
+                    releaseMIntTemp(t)
+                    releaseMIntTemp(t2)
                 }
                 releaseMIntTemp(t)
                 releaseMIntTemp(t2)
@@ -135,10 +137,29 @@ object GenAssemblerLines {
                 } else {
                   getLocalValue(locInfo,TempMIntLoc(nr))
                 }
+              case Some(DeRef(addrLoc)) =>
+                addrLoc match {
+                  case TempMAddressLoc(nrTemp) =>
+                    listBuilder += Ldw(nrTemp,nrTemp,0)
+                    listBuilder += Ldw(nr,nrTemp,0)
+                }
+
               case None => listBuilder += Setw(nr, Left(getValue(operand2)))
             }
 
-          case DeRef(addrLoc) => listBuilder += Ldw(getRegisterDeRef(addrLoc), getRegisterDeRef(addrLoc), 0)
+          case DeRef(addrLoc) =>
+            operand1.get match {
+              case MIntProgLoc(infoSource) =>
+                // TODO LDW
+                listBuilder += Addc(getRegisterDeRef(addrLoc)+1,29,(infoSource.offset-2)*4+1)
+                listBuilder += Stw(getRegisterDeRef(addrLoc)+1,tempMAddressLoc,0)
+                listBuilder += Ldw(getRegisterDeRef(addrLoc),getRegisterDeRef(addrLoc),0)
+                listBuilder += Ldw(getRegisterDeRef(addrLoc),getRegisterDeRef(addrLoc),0)
+
+            }
+
+            //listBuilder += Ldw(getRegisterDeRef(addrLoc), getRegisterDeRef(addrLoc), 0)
+            //listBuilder += Stw(nr,getRegisterDeRef(addrLoc),0)
           case _ => println("ASSIGN MATCH ERROR--------------------------")
 
         }
@@ -157,43 +178,35 @@ object GenAssemblerLines {
 
 
       case AssignAddrInstr(dest, source) =>
-        var nesting: Int = 0
-        var offset: Int = 0
-        source match {
-          case rtloc: MAddressProgLoc =>
-            nesting = rtloc.locInfo.nesting
-            offset = rtloc.locInfo.offset
-          case MkRef(mIntLoc) =>
-           mIntLoc match {
-             case MIntProgLoc(info) =>
-               dest match{
-                 case TempMAddressLoc(nr) =>
-                   if(info.nesting == 0) {
-                     if (procCounter.isEmpty) procCounter = Some(-info.offset)
-                     listBuilder += Setw(nr, Right("global_vars"))
-                     listBuilder += Addc(nr, nr, (procCounter.get + info.offset) * 4)
-                     listBuilder += Ldw(nr, nr, 0)
-                   } else if(info.offset < 1){
-                     getLocalValue(info,TempMIntLoc(nr))
-                   } else {
-                     listBuilder += Addc(nr,29,procTillCall*4+1)
-                     listBuilder += Ldw(nr,nr,0)
-                   }
-               }
-           }
+        dest match {
+          case TempMAddressLoc(tempAddress) =>
+            tempMAddressLoc = tempAddress
+            source match {
+              case MAddressProgLoc(infoSource) =>
+                if(infoSource.nesting == 0){
+                  getGlobalValue(infoSource,TempMIntLoc(tempAddress))
+                } else if(infoSource.offset > 1) {
+                  //getParameterValue(infoSource,TempMIntLoc(tempAddress))
+                  listBuilder += Addc(tempAddress,29,1 + (infoSource.offset - 2) * 4)
+                } else {
+                  getLocalValue(infoSource,TempMIntLoc(tempAddress))
+                }
+              case MkRef(mIntLoc) =>
+                mIntLoc match {
+                  case MIntProgLoc(locInfo) =>
+                    if(locInfo.nesting == 0){
+                      listBuilder += Setw(tempAddress, Right("global_vars"))
+                    } else if(locInfo.offset > 1) {
+                      listBuilder += Addc(tempAddress,29,1 + (locInfo.offset - 2) * 4)
+                    } else {
+                      listBuilder += Setw(tempAddress,Left(locInfo.offset*4-3))
+                      listBuilder += Add(tempAddress,29,tempAddress)
+                    }
+                }
+            }
 
         }
-        dest match {
-          case loc: TempMAddressLoc =>
-            if (nesting.equals(1)) {
-              listBuilder += Addc(loc.nr, 29, 1 + (offset - 2) * 4)
-              listBuilder += Ldw(getRegisterDeRef(dest), getRegisterDeRef(dest), 0)
-            }
-            else {
-              //listBuilder +=  Setw(loc.nr,)
-            }
-          case _ =>
-        }
+
 
 
       case IfInstr(operand1, op, operand2, jumpTo) =>
@@ -218,7 +231,6 @@ object GenAssemblerLines {
       case PushMIntInstr(t) =>
         t match{
           case TempMIntLoc(nr) =>
-            listBuilder += Subc(31,31,4)
             listBuilder += Setw(nr+1,Left(procTillCall*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
@@ -231,7 +243,6 @@ object GenAssemblerLines {
       case PushMAddressInstr(a) =>
         a match{
           case TempMAddressLoc(nr) =>
-            listBuilder += Subc(31,31,4)
             listBuilder += Setw(nr+1,Left(procTillCall*4+1))
             listBuilder += Add(nr+1,nr+1,31)
             listBuilder += Stw(nr,nr+1,0)
@@ -244,8 +255,7 @@ object GenAssemblerLines {
         listBuilder += Subc(31,31,8)
         listBuilder += Stw(29,31,1)
         listBuilder += Stw(30,31,5)
-        //TODO parameter zählen?
-
+        listBuilder += Subc(31,31,countPushs(zwischenCode.indexOf(code)))
 
       case PopMIntInstr => listBuilder += Addc(31,31,4)
 
@@ -267,6 +277,17 @@ object GenAssemblerLines {
         listBuilder += WordDirective(None)
 
       case _ =>
+    }
+
+    def countPushs(i: Int): Int = {
+      var tmp = i
+      var count = 0
+      while(!zwischenCode(tmp).isInstanceOf[CallInstr]){
+        if(zwischenCode(tmp).isInstanceOf[PushMIntInstr]) count += 1
+        if(zwischenCode(tmp).isInstanceOf[PushMAddressInstr]) count += 1
+        tmp += 1
+      }
+      count * 4
     }
 
     def getGlobalValue(info: RTLocInfo,t: TempMIntLoc): Unit = {

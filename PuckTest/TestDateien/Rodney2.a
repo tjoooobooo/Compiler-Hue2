@@ -6,10 +6,12 @@ WordDirective(None)
 WordDirective(None)
 Label(p)
 Addc(29,31,0)
+
 Addc(1,29,1)
 Addc(2,29,5)
 Ldw(2,2,0)
 Stw(2,1,0)
+
 Addc(31,31,8)
 Jmpr(30)
 

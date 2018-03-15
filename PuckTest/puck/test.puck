@@ -1,16 +1,16 @@
 object Test
-var a,b: int;
-proc p(x: int)
+var a,b,c: int;
+
+proc p(ref x: int; y: int; z: int)
 begin
-write(x);
-end
-proc test(t: int)
-var lok: int;
-begin
-    lok := 2;
-    p(lok);
+    write(x);
+    x := y;
+    write(x);
+    write(z);
 end
 init
-    a := 10;
-    test(5);
+ a := 4;
+ b := 2;
+ c := 100;
+ p(a,b,c);
 end

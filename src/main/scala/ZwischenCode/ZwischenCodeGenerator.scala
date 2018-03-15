@@ -177,7 +177,7 @@ object ZwischenCodeGenerator {
           codeBuf += PushFPInstr   // push actual frame pointer
 
           // push arguments
-          args.reverse.foreach {  // put arguments on stack
+          args.foreach {  // put arguments on stack
             case Arg(rExp, Some(ByValue)) => // pass by value
               val t = acquireMIntTemp()
               genCodeValExp(rExp, t)
