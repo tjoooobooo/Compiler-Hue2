@@ -94,10 +94,7 @@ object ProgParsers extends TokenParsers {
   def lExp: Parser[LocExp] =
     definedLoc ^^ {
       case symb@RefParamSymbol(_) => StarConv(DirectLoc(symb)) // Ref-Parameters need de-referencing
-      case symb =>
-       // TODO Variable deklariert?
-        //if(!symb.isDeclared) throw new IllegalArgumentException("Variable " + symb.name + " is undeclared!")
-        DirectLoc(symb)
+      case symb => DirectLoc(symb)
 
     }
 
@@ -133,7 +130,6 @@ object ProgParsers extends TokenParsers {
     objStart ~> body ^^ { case (defList, cmdList) => Obj(objectName,None,None,defList, cmdList) }
 
   // enter scope when keyword PROGRAM appears
-  // TODO PROGRAM am Anfang?
   def objStart: Parser[Any] =
     KwToken("object") ~> ident ^^ { x =>
       env.enterScope()

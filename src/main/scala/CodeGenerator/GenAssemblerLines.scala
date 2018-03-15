@@ -11,12 +11,10 @@ object GenAssemblerLines {
   def gen(zwischenCode: List[IntermediateInstr]): List[AssemblerLine] = {
     var listBuilder: ListBuffer[AssemblerLine] = new ListBuffer[AssemblerLine]
     var procTillCall : Int = 0
-    var procCounter : Option[Int] = None
+    var functionparameters: Int = 0
     var tempMAddressLoc: Int = 0
 
-
     zwischenCode foreach println
-    //println("-----------------------------------")
 
   var paramCounter = 0
   for(code <- zwischenCode) code match {
@@ -150,17 +148,12 @@ object GenAssemblerLines {
           case DeRef(addrLoc) =>
             operand1.get match {
               case MIntProgLoc(infoSource) =>
-                // TODO LDW
                 listBuilder += Addc(getRegisterDeRef(addrLoc)+1,29,(infoSource.offset-2)*4+1)
                 listBuilder += Stw(getRegisterDeRef(addrLoc)+1,tempMAddressLoc,0)
                 listBuilder += Ldw(getRegisterDeRef(addrLoc),getRegisterDeRef(addrLoc),0)
                 listBuilder += Ldw(getRegisterDeRef(addrLoc),getRegisterDeRef(addrLoc),0)
-
             }
-
-            //listBuilder += Ldw(getRegisterDeRef(addrLoc), getRegisterDeRef(addrLoc), 0)
-            //listBuilder += Stw(nr,getRegisterDeRef(addrLoc),0)
-          case _ => println("ASSIGN MATCH ERROR--------------------------")
+          case _ =>
 
         }
 
@@ -219,6 +212,7 @@ object GenAssemblerLines {
       case LabeledInstr(label) => listBuilder += Label(label)
 
       case ProcEntryInstr(label) =>
+        functionparameters=countPushs(zwischenCode.indexOf(code))
         listBuilder += Label(label)
         //countParams(code)
 
@@ -236,7 +230,6 @@ object GenAssemblerLines {
             listBuilder += Stw(nr,nr+1,0)
             procTillCall += 1
           case MIntImmediateValue(nr) => listBuilder += Subc(31,31,4)
-          // 0 TODO
         }
 
 
@@ -255,11 +248,11 @@ object GenAssemblerLines {
         listBuilder += Subc(31,31,8)
         listBuilder += Stw(29,31,1)
         listBuilder += Stw(30,31,5)
-        listBuilder += Subc(31,31,countPushs(zwischenCode.indexOf(code)))
+        listBuilder += Subc(31,31,functionparameters)
 
       case PopMIntInstr => listBuilder += Addc(31,31,4)
 
-      case PopMAddressInstr => listBuilder += Addc(31, 31, 4) //TODO
+      case PopMAddressInstr => listBuilder += Addc(31, 31, 4)
 
       case PopCodeAddrToRRInstr =>
       //listBuilder += Addc(31,31,paramCounter*4)
@@ -284,7 +277,7 @@ object GenAssemblerLines {
       var count = 0
       while(!zwischenCode(tmp).isInstanceOf[CallInstr]){
         if(zwischenCode(tmp).isInstanceOf[PushMIntInstr]) count += 1
-        if(zwischenCode(tmp).isInstanceOf[PushMAddressInstr]) count += 1
+        else if(zwischenCode(tmp).isInstanceOf[PushMAddressInstr]) count += 1
         tmp += 1
       }
       count * 4

@@ -202,7 +202,7 @@ object ZwischenCodeGenerator {
           codeBuf += PushCodeAddrInstr(returnLabel)
 
           codeBuf += CallInstr(procSymbToLabel(pSymb))  // call procedure
-          codeBuf += LabeledInstr(returnLabel) //TODO label richtig?
+          codeBuf += LabeledInstr(returnLabel)
 
           // clean stack in reverse order
           // return address has already been poped by called procedure

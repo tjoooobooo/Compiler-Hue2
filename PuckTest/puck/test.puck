@@ -1,16 +1,19 @@
 object Test
 var a,b,c: int;
 
-proc p(ref x: int; y: int; z: int)
+proc p(a: int; b: int)
 begin
-    write(x);
-    x := y;
-    write(x);
-    write(z);
+    write(a);
+    write(b);
 end
+
 init
  a := 4;
  b := 2;
  c := 100;
- p(a,b,c);
+ if a < 1
+ then p(a,b);
+ else p(b,c);
+ fi
+
 end

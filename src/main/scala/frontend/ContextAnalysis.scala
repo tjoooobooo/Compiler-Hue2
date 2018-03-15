@@ -42,14 +42,22 @@ object ContextAnalysis {
       case assign@Assign(left,right) =>
       left match {
         case DirectLoc(symb) =>
-          //if(symb.isInstanceOf[ValParamSymbol]) // TODO ref = x?
+          //if(symb.isInstanceOf[ValParamSymbol])
           // throw new IllegalArgumentException("Reassignment to val "+ symb.name +s" at ${assign.pos}")
           Assign(left,right)
         case _ => Assign(left,right)
         }
       case While(e,cmds) => While(e,cmds)
-      case If(e,thenCmds,Nil) => If(e,thenCmds,Nil)
-      case If(e,thenCmds,elseCmds) => If(e,thenCmds,elseCmds)
+      case If(e,thenCmds,Nil) =>
+        var res: ListBuffer[Cmd] = ListBuffer()
+        for(tcmds <- thenCmds) res += transformCmd(tcmds)
+        If(e,res.toList,Nil)
+      case If(e,thenCmds,elseCmds) =>
+        var thenRes: ListBuffer[Cmd] = ListBuffer()
+        var elseRes: ListBuffer[Cmd] = ListBuffer()
+        for(tcmds <- thenCmds) thenRes += transformCmd(tcmds)
+        for(ecmds <- elseCmds) elseRes += transformCmd(ecmds)
+        If(e,thenRes.toList,elseRes.toList)
       case Write(e) => Write(e)
       case Read(e) => Read(e)
     }
